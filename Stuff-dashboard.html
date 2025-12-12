@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard - Restaurant Table Management</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <style>
+        :root {
+            --gold: #D4AF37;
+            --dark-green: #2C5F2D;
+            --light-green: #97BC62;
+            --beige: #F5F5DC;
+            --cream: #FAF8F3;
+            --white: #FFFFFF;
+            --gray-light: #F8F9FA;
+            --gray-medium: #6C757D;
+            --gray-dark: #495057;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-hover: 0 4px 16px rgba(0,0,0,0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--cream);
+            color: var(--gray-dark);
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 260px;
+            background: linear-gradient(180deg, var(--dark-green) 0%, #234a24 100%);
+            padding: 2rem 0;
+            z-index: 1000;
+            box-shadow: 4px 0 12px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-brand {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-brand h4 {
+            color: var(--white);
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
+        .sidebar-brand p {
+            color: var(--gold);
+            margin: 0.25rem 0 0;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link-custom {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1.5rem;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link-custom:hover {
+            color: var(--white);
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .nav-link-custom.active {
+            color: var(--white);
+            background-color: rgba(212, 175, 55, 0.2);
+            border-left: 4px solid var(--gold);
+        }
+
+        .nav-link-custom i {
+            font-size: 1.25rem;
+            margin-right: 1rem;
+            width: 24px;
+        }
+
+        .nav-bottom {
+            position: absolute;
+            bottom: 2rem;
+            width: 100%;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            margin-left: 260px;
+            min-height: 100vh;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: var(--white);
+            padding: 1.25rem 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .page-title h2 {
+            margin: 0;
+            color: var(--dark-green);
+            font-size: 1.75rem;
+        }
+
+        .page-title p {
+            margin: 0;
+            color: var(--gray-medium);
+            font-size: 0.875rem;
+        }
+
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .datetime-display {
+            text-align: right;
+        }
+
+        .datetime-display .time {
+            font-size: 1.125rem;
+            color: var(--dark-green);
+            margin: 0;
+        }
+
+        .datetime-display .date {
+            font-size: 0.875rem;
+            color: var(--gray-medium);
+            margin: 0;
+        }
+
+        .staff-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: var(--gray-light);
+            border-radius: 50px;
+        }
+
+        .staff-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold), var(--dark-green));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 1.125rem;
+        }
+
+        .staff-name {
+            margin: 0;
+            color: var(--dark-green);
+            font-size: 0.9rem;
+        }
+
+        .staff-role {
+            margin: 0;
+            color: var(--gray-medium);
+            font-size: 0.75rem;
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+            padding: 2rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* KPI Cards */
+        .kpi-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(44, 95, 45, 0.05);
+        }
+
+        .kpi-card:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .kpi-card .icon-wrapper {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .kpi-card.primary .icon-wrapper {
+            background: linear-gradient(135deg, rgba(44, 95, 45, 0.1), rgba(44, 95, 45, 0.05));
+            color: var(--dark-green);
+        }
+
+        .kpi-card.success .icon-wrapper {
+            background: linear-gradient(135deg, rgba(151, 188, 98, 0.2), rgba(151, 188, 98, 0.1));
+            color: var(--light-green);
+        }
+
+        .kpi-card.warning .icon-wrapper {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.1));
+            color: var(--gold);
+        }
+
+        .kpi-card.info .icon-wrapper {
+            background: linear-gradient(135deg, rgba(13, 110, 253, 0.1), rgba(13, 110, 253, 0.05));
+            color: #0D6EFD;
+        }
+
+        .kpi-card .label {
+            font-size: 0.875rem;
+            color: var(--gray-medium);
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-card .value {
+            font-size: 2rem;
+            color: var(--dark-green);
+            margin: 0;
+        }
+
+        .kpi-card .change {
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .kpi-card .change.positive {
+            color: #28a745;
+        }
+
+        .kpi-card .change.negative {
+            color: #dc3545;
+        }
+
+        /* Alert Card */
+        .alert-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--gold);
+        }
+
+        .alert-card h5 {
+            color: var(--dark-green);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .alert-item {
+            padding: 0.75rem;
+            background: var(--gray-light);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .alert-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .alert-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .alert-badge.overdue {
+            background: #dc3545;
+            color: white;
+        }
+
+        .alert-badge.soon {
+            background: var(--gold);
+            color: white;
+        }
+
+        /* Reservation List */
+        .reservation-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .reservation-card h5 {
+            color: var(--dark-green);
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .reservation-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-light);
+            transition: background 0.2s ease;
+        }
+
+        .reservation-item:hover {
+            background: var(--gray-light);
+        }
+
+        .reservation-item:last-child {
+            border-bottom: none;
+        }
+
+        .reservation-info h6 {
+            margin: 0 0 0.25rem;
+            color: var(--dark-green);
+        }
+
+        .reservation-info p {
+            margin: 0;
+            font-size: 0.875rem;
+            color: var(--gray-medium);
+        }
+
+        .reservation-meta {
+            text-align: right;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.375rem 0.875rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .status-badge.upcoming {
+            background: rgba(13, 110, 253, 0.1);
+            color: #0D6EFD;
+        }
+
+        .status-badge.ongoing {
+            background: rgba(151, 188, 98, 0.2);
+            color: var(--dark-green);
+        }
+
+        .status-badge.completed {
+            background: rgba(108, 117, 125, 0.1);
+            color: var(--gray-medium);
+        }
+
+        .status-badge.cancelled {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+
+        /* Filters Bar */
+        .filters-bar {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 1rem;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-item label {
+            font-size: 0.875rem;
+            color: var(--gray-medium);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .filter-item input,
+        .filter-item select {
+            width: 100%;
+            padding: 0.625rem 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .filter-item input:focus,
+        .filter-item select:focus {
+            outline: none;
+            border-color: var(--dark-green);
+            box-shadow: 0 0 0 3px rgba(44, 95, 45, 0.1);
+        }
+
+        /* Bookings Table */
+        .bookings-table-wrapper {
+            background: var(--white);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .bookings-table {
+            width: 100%;
+            margin: 0;
+        }
+
+        .bookings-table thead {
+            background: var(--gray-light);
+        }
+
+        .bookings-table th {
+            padding: 1rem 1.5rem;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--dark-green);
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .bookings-table td {
+            padding: 1rem 1.5rem;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .bookings-table tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        .bookings-table tbody tr:hover {
+            background: var(--gray-light);
+        }
+
+        /* Tables Grid */
+        .table-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .table-card:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-4px);
+        }
+
+        .table-card.available {
+            border-color: rgba(151, 188, 98, 0.3);
+        }
+
+        .table-card.occupied {
+            border-color: rgba(220, 53, 69, 0.3);
+        }
+
+        .table-card.reserved {
+            border-color: rgba(212, 175, 55, 0.3);
+        }
+
+        .table-number {
+            font-size: 1.5rem;
+            color: var(--dark-green);
+            margin: 0 0 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .table-seats {
+            color: var(--gray-medium);
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .table-status {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            width: 100%;
+            text-align: center;
+        }
+
+        .table-status.available {
+            background: rgba(151, 188, 98, 0.2);
+            color: var(--dark-green);
+        }
+
+        .table-status.occupied {
+            background: rgba(220, 53, 69, 0.15);
+            color: #dc3545;
+        }
+
+        .table-status.reserved {
+            background: rgba(212, 175, 55, 0.2);
+            color: #d4a625;
+        }
+
+        .table-timestamp {
+            margin-top: 0.75rem;
+            font-size: 0.75rem;
+            color: var(--gray-medium);
+            text-align: center;
+        }
+
+        /* Buttons */
+        .btn-primary-custom {
+            background: var(--dark-green);
+            color: var(--white);
+            border: none;
+            padding: 0.625rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary-custom:hover {
+            background: #234a24;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-outline-custom {
+            background: transparent;
+            color: var(--dark-green);
+            border: 1px solid var(--dark-green);
+            padding: 0.625rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-custom:hover {
+            background: var(--dark-green);
+            color: var(--white);
+        }
+
+        .btn-sm-custom {
+            padding: 0.375rem 1rem;
+            font-size: 0.875rem;
+            border-radius: 6px;
+        }
+
+        /* Pagination */
+        .pagination-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1.5rem;
+            background: var(--white);
+            border-radius: 0 0 16px 16px;
+        }
+
+        .pagination-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #dee2e6;
+            background: var(--white);
+            color: var(--dark-green);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: var(--dark-green);
+            color: var(--white);
+            border-color: var(--dark-green);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-btn.active {
+            background: var(--dark-green);
+            color: var(--white);
+            border-color: var(--dark-green);
+        }
+
+        /* Responsive adjustments for desktop */
+        @media (max-width: 1440px) {
+            .main-content {
+                margin-left: 260px;
+            }
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--gray-medium);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <h4>Restaurant Manager</h4>
+            <p>Staff Portal</p>
+        </div>
+        
+        <nav>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link-custom active" data-section="dashboard">
+                        <i class="bi bi-speedometer2"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link-custom" data-section="bookings">
+                        <i class="bi bi-calendar-check"></i>
+                        <span>Bookings</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link-custom" data-section="tables">
+                        <i class="bi bi-grid-3x3-gap"></i>
+                        <span>Tables</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="nav-bottom">
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link-custom" id="logoutBtn">
+                            <i class="bi bi-box-arrow-left"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="page-title">
+                <h2 id="pageTitle">Dashboard</h2>
+                <p id="pageSubtitle">Welcome back! Here's your overview</p>
+            </div>
+            
+            <div class="top-bar-right">
+                <div class="datetime-display">
+                    <p class="time" id="currentTime">00:00:00</p>
+                    <p class="date" id="currentDate">January 1, 2025</p>
+                </div>
+                
+                <div class="staff-info">
+                    <div class="staff-avatar" id="staffAvatar">S</div>
+                    <div>
+                        <p class="staff-name" id="staffName">Staff Member</p>
+                        <p class="staff-role">Staff</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard-section" class="content-section active">
+            <!-- KPI Cards -->
+            <div class="row mb-4">
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="kpi-card primary">
+                        <div class="icon-wrapper">
+                            <i class="bi bi-grid-3x3-gap"></i>
+                        </div>
+                        <p class="label">Total Tables</p>
+                        <h3 class="value" id="totalTables">24</h3>
+                        <p class="change">Restaurant capacity</p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="kpi-card success">
+                        <div class="icon-wrapper">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+                        <p class="label">Available Tables</p>
+                        <h3 class="value" id="availableTables">16</h3>
+                        <p class="change positive"><i class="bi bi-arrow-up"></i> Ready for booking</p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="kpi-card warning">
+                        <div class="icon-wrapper">
+                            <i class="bi bi-calendar-event"></i>
+                        </div>
+                        <p class="label">Today's Bookings</p>
+                        <h3 class="value" id="todayBookings">18</h3>
+                        <p class="change"><i class="bi bi-clock"></i> 8 upcoming</p>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="kpi-card info">
+                        <div class="icon-wrapper">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <p class="label">Guests Today</p>
+                        <h3 class="value" id="guestsToday">72</h3>
+                        <p class="change positive"><i class="bi bi-arrow-up"></i> +12% vs yesterday</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Alerts -->
+                <div class="col-lg-4 mb-4">
+                    <div class="alert-card">
+                        <h5><i class="bi bi-exclamation-triangle"></i> Alerts & Notifications</h5>
+                        <div id="alertsList">
+                            <div class="alert-item">
+                                <div>
+                                    <strong>Table 4</strong>
+                                    <p class="mb-0" style="font-size: 0.875rem; color: var(--gray-medium);">Reserved at 2:00 PM</p>
+                                </div>
+                                <span class="alert-badge soon">In 30 min</span>
+                            </div>
+                            <div class="alert-item">
+                                <div>
+                                    <strong>Table 12</strong>
+                                    <p class="mb-0" style="font-size: 0.875rem; color: var(--gray-medium);">Occupied since 12:30 PM</p>
+                                </div>
+                                <span class="alert-badge overdue">Overdue</span>
+                            </div>
+                            <div class="alert-item">
+                                <div>
+                                    <strong>Table 7</strong>
+                                    <p class="mb-0" style="font-size: 0.875rem; color: var(--gray-medium);">Reserved at 6:30 PM</p>
+                                </div>
+                                <span class="alert-badge soon">In 2 hours</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ongoing & Upcoming Reservations -->
+                <div class="col-lg-8 mb-4">
+                    <div class="reservation-card">
+                        <h5><i class="bi bi-clock-history"></i> Ongoing & Upcoming Reservations</h5>
+                        <div id="reservationsList">
+                            <div class="reservation-item">
+                                <div class="reservation-info">
+                                    <h6>John Anderson</h6>
+                                    <p><i class="bi bi-grid-3x3-gap"></i> Table 5 • <i class="bi bi-people"></i> 4 Guests</p>
+                                </div>
+                                <div class="reservation-meta">
+                                    <span class="status-badge ongoing">Ongoing</span>
+                                    <p style="margin: 0; font-size: 0.875rem; color: var(--gray-medium);">1:30 PM - 3:00 PM</p>
+                                </div>
+                            </div>
+                            
+                            <div class="reservation-item">
+                                <div class="reservation-info">
+                                    <h6>Sarah Mitchell</h6>
+                                    <p><i class="bi bi-grid-3x3-gap"></i> Table 4 • <i class="bi bi-people"></i> 2 Guests</p>
+                                </div>
+                                <div class="reservation-meta">
+                                    <span class="status-badge upcoming">Upcoming</span>
+                                    <p style="margin: 0; font-size: 0.875rem; color: var(--gray-medium);">2:00 PM - 3:30 PM</p>
+                                </div>
+                            </div>
+                            
+                            <div class="reservation-item">
+                                <div class="reservation-info">
+                                    <h6>Michael Roberts</h6>
+                                    <p><i class="bi bi-grid-3x3-gap"></i> Table 8 • <i class="bi bi-people"></i> 6 Guests</p>
+                                </div>
+                                <div class="reservation-meta">
+                                    <span class="status-badge upcoming">Upcoming</span>
+                                    <p style="margin: 0; font-size: 0.875rem; color: var(--gray-medium);">6:30 PM - 8:30 PM</p>
+                                </div>
+                            </div>
+                            
+                            <div class="reservation-item">
+                                <div class="reservation-info">
+                                    <h6>Emma Thompson</h6>
+                                    <p><i class="bi bi-grid-3x3-gap"></i> Table 15 • <i class="bi bi-people"></i> 4 Guests</p>
+                                </div>
+                                <div class="reservation-meta">
+                                    <span class="status-badge upcoming">Upcoming</span>
+                                    <p style="margin: 0; font-size: 0.875rem; color: var(--gray-medium);">7:00 PM - 9:00 PM</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bookings Section -->
+        <section id="bookings-section" class="content-section">
+            <!-- Filters -->
+            <div class="filters-bar">
+                <div class="filter-group">
+                    <div class="filter-item">
+                        <label for="filterDate">Date</label>
+                        <input type="date" id="filterDate" class="form-control">
+                    </div>
+                    
+                    <div class="filter-item">
+                        <label for="filterStatus">Status</label>
+                        <select id="filterStatus" class="form-select">
+                            <option value="all">All Bookings</option>
+                            <option value="upcoming">Upcoming</option>
+                            <option value="ongoing">Ongoing</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-item">
+                        <button class="btn-outline-custom btn-sm-custom" id="clearFiltersBtn">
+                            <i class="bi bi-x-circle"></i> Clear Filters
+                        </button>
+                    </div>
+                    
+                    <div class="filter-item ms-auto">
+                        <button class="btn-primary-custom btn-sm-custom">
+                            <i class="bi bi-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bookings Table -->
+            <div class="bookings-table-wrapper">
+                <table class="bookings-table">
+                    <thead>
+                        <tr>
+                            <th>Customer Name</th>
+                            <th>Table Number</th>
+                            <th>Booking Time</th>
+                            <th>Guests</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookingsTableBody">
+                        <tr>
+                            <td>
+                                <strong>John Anderson</strong>
+                                <br>
+                                <small style="color: var(--gray-medium);">john@example.com</small>
+                            </td>
+                            <td>Table 5</td>
+                            <td>Dec 9, 2025 • 1:30 PM</td>
+                            <td><i class="bi bi-people"></i> 4</td>
+                            <td><span class="status-badge ongoing">Ongoing</span></td>
+                            <td>
+                                <button class="btn-primary-custom btn-sm-custom mark-complete-btn" data-booking-id="1">
+                                    <i class="bi bi-check-lg"></i> Mark Complete
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Sarah Mitchell</strong>
+                                <br>
+                                <small style="color: var(--gray-medium);">sarah@example.com</small>
+                            </td>
+                            <td>Table 4</td>
+                            <td>Dec 9, 2025 • 2:00 PM</td>
+                            <td><i class="bi bi-people"></i> 2</td>
+                            <td><span class="status-badge upcoming">Upcoming</span></td>
+                            <td>
+                                <button class="btn-primary-custom btn-sm-custom mark-complete-btn" disabled>
+                                    <i class="bi bi-check-lg"></i> Mark Complete
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Michael Roberts</strong>
+                                <br>
+                                <small style="color: var(--gray-medium);">michael@example.com</small>
+                            </td>
+                            <td>Table 8</td>
+                            <td>Dec 9, 2025 • 6:30 PM</td>
+                            <td><i class="bi bi-people"></i> 6</td>
+                            <td><span class="status-badge upcoming">Upcoming</span></td>
+                            <td>
+                                <button class="btn-primary-custom btn-sm-custom mark-complete-btn" disabled>
+                                    <i class="bi bi-check-lg"></i> Mark Complete
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Emma Thompson</strong>
+                                <br>
+                                <small style="color: var(--gray-medium);">emma@example.com</small>
+                            </td>
+                            <td>Table 15</td>
+                            <td>Dec 9, 2025 • 7:00 PM</td>
+                            <td><i class="bi bi-people"></i> 4</td>
+                            <td><span class="status-badge upcoming">Upcoming</span></td>
+                            <td>
+                                <button class="btn-primary-custom btn-sm-custom mark-complete-btn" disabled>
+                                    <i class="bi bi-check-lg"></i> Mark Complete
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>David Wilson</strong>
+                                <br>
+                                <small style="color: var(--gray-medium);">david@example.com</small>
+                            </td>
+                            <td>Table 2</td>
+                            <td>Dec 8, 2025 • 7:30 PM</td>
+                            <td><i class="bi bi-people"></i> 2</td>
+                            <td><span class="status-badge completed">Completed</span></td>
+                            <td>
+                                <span style="color: var(--gray-medium); font-size: 0.875rem;">Completed</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <!-- Pagination -->
+                <div class="pagination-wrapper">
+                    <button class="pagination-btn" disabled><i class="bi bi-chevron-left"></i></button>
+                    <button class="pagination-btn active">1</button>
+                    <button class="pagination-btn">2</button>
+                    <button class="pagination-btn">3</button>
+                    <button class="pagination-btn"><i class="bi bi-chevron-right"></i></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tables Section -->
+        <section id="tables-section" class="content-section">
+            <div class="row" id="tablesGrid">
+                <!-- Table Cards will be generated here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Initialize
+            updateDateTime();
+            loadStaffInfo();
+            generateTablesGrid();
+            loadDashboardData();
+
+            // Update time every second
+            setInterval(updateDateTime, 1000);
+
+            // Navigation
+            $('.nav-link-custom').on('click', function(e) {
+                if ($(this).attr('id') === 'logoutBtn') {
+                    e.preventDefault();
+                    handleLogout();
+                    return;
+                }
+
+                e.preventDefault();
+                const section = $(this).data('section');
+                
+                // Update active nav
+                $('.nav-link-custom').removeClass('active');
+                $(this).addClass('active');
+                
+                // Show section
+                $('.content-section').removeClass('active');
+                $(`#${section}-section`).addClass('active');
+                
+                // Update page title
+                updatePageTitle(section);
+            });
+
+            // Clear Filters
+            $('#clearFiltersBtn').on('click', function() {
+                $('#filterDate').val('');
+                $('#filterStatus').val('all');
+                filterBookings();
+            });
+
+            // Filter Bookings
+            $('#filterDate, #filterStatus').on('change', filterBookings);
+
+            // Mark Complete
+            $(document).on('click', '.mark-complete-btn', function() {
+                if (!$(this).prop('disabled')) {
+                    const row = $(this).closest('tr');
+                    const customerName = row.find('strong').first().text();
+                    const bookingId = $(this).data('booking-id');
+                    
+                    if (confirm(`Mark booking for ${customerName} as complete?`)) {
+                        // Update in localStorage
+                        updateBookingStatus(bookingId, 'completed');
+                        
+                        // Update UI
+                        row.find('.status-badge')
+                            .removeClass('ongoing confirmed upcoming')
+                            .addClass('completed')
+                            .text('Completed');
+                        $(this).replaceWith('<span style="color: var(--gray-medium); font-size: 0.875rem;">Completed</span>');
+                        
+                        // Reload dashboard and bookings
+                        loadDashboardData();
+                        loadBookingsTable();
+                    }
+                }
+            });
+
+            // Logout
+            function handleLogout() {
+                if (confirm('Are you sure you want to logout?')) {
+                    localStorage.removeItem('staffUser');
+                    window.location.href = 'index.html';
+                }
+            }
+
+            // Functions
+            function updateDateTime() {
+                const now = new Date();
+                
+                // Time
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                $('#currentTime').text(`${hours}:${minutes}:${seconds}`);
+                
+                // Date
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                $('#currentDate').text(now.toLocaleDateString('en-US', options));
+            }
+
+            function loadStaffInfo() {
+                const staffUser = localStorage.getItem('staffUser');
+                if (staffUser) {
+                    try {
+                        const staff = JSON.parse(staffUser);
+                        $('#staffName').text(staff.name || 'Staff Member');
+                        $('#staffAvatar').text((staff.name || 'S').charAt(0).toUpperCase());
+                    } catch (e) {
+                        console.error('Error loading staff info:', e);
+                    }
+                }
+            }
+
+            function updatePageTitle(section) {
+                const titles = {
+                    dashboard: {
+                        title: 'Dashboard',
+                        subtitle: 'Welcome back! Here\'s your overview'
+                    },
+                    bookings: {
+                        title: 'Bookings',
+                        subtitle: 'Manage all restaurant bookings'
+                    },
+                    tables: {
+                        title: 'Tables',
+                        subtitle: 'View and manage table status'
+                    }
+                };
+                
+                $('#pageTitle').text(titles[section].title);
+                $('#pageSubtitle').text(titles[section].subtitle);
+            }
+
+            function loadDashboardData() {
+                // Get bookings from localStorage
+                let bookings = getBookings();
+                
+                // Get today's date
+                const today = new Date();
+                const todayStr = today.toISOString().split('T')[0];
+                
+                // Filter today's bookings
+                const todayBookings = bookings.filter(b => {
+                    const bookingDate = new Date(b.date).toISOString().split('T')[0];
+                    return bookingDate === todayStr;
+                });
+                
+                // Calculate stats
+                const totalTables = 24;
+                const confirmedToday = todayBookings.filter(b => b.status === 'confirmed' || b.status === 'ongoing').length;
+                const availableTables = totalTables - confirmedToday;
+                const totalGuests = todayBookings.reduce((sum, b) => sum + (parseInt(b.guests) || 4), 0);
+
+                // Update KPI cards
+                $('#totalTables').text(totalTables);
+                $('#availableTables').text(availableTables);
+                $('#todayBookings').text(todayBookings.length);
+                $('#guestsToday').text(totalGuests);
+                
+                // Update reservations list
+                updateReservationsList(bookings);
+                
+                // Update alerts
+                updateAlerts(todayBookings);
+            }
+            
+            function getBookings() {
+                try {
+                    const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+                    if (bookings.length === 0) {
+                        return getDefaultBookings();
+                    }
+                    return bookings;
+                } catch (e) {
+                    return getDefaultBookings();
+                }
+            }
+            
+            function getDefaultBookings() {
+                const today = new Date().toISOString().split('T')[0];
+                return [
+                    { 
+                        id: '1', 
+                        customerName: 'John Anderson', 
+                        customerEmail: 'john@example.com',
+                        tableCategory: 'date', 
+                        tableNumber: 'Table 5', 
+                        date: today, 
+                        time: '13:30', 
+                        guests: '4',
+                        status: 'ongoing' 
+                    },
+                    { 
+                        id: '2', 
+                        customerName: 'Sarah Mitchell', 
+                        customerEmail: 'sarah@example.com',
+                        tableCategory: 'date', 
+                        tableNumber: 'Table 4', 
+                        date: today, 
+                        time: '14:00', 
+                        guests: '2',
+                        status: 'confirmed' 
+                    },
+                    { 
+                        id: '3', 
+                        customerName: 'Michael Roberts', 
+                        customerEmail: 'michael@example.com',
+                        tableCategory: 'party', 
+                        tableNumber: 'Table 8', 
+                        date: today, 
+                        time: '18:30', 
+                        guests: '6',
+                        status: 'confirmed' 
+                    },
+                    { 
+                        id: '4', 
+                        customerName: 'Emma Thompson', 
+                        customerEmail: 'emma@example.com',
+                        tableCategory: 'celebration', 
+                        tableNumber: 'Table 15', 
+                        date: today, 
+                        time: '19:00', 
+                        guests: '4',
+                        status: 'confirmed' 
+                    },
+                    { 
+                        id: '5', 
+                        customerName: 'David Wilson', 
+                        customerEmail: 'david@example.com',
+                        tableCategory: 'date', 
+                        tableNumber: 'Table 2', 
+                        date: new Date(Date.now() - 86400000).toISOString().split('T')[0], 
+                        time: '19:30', 
+                        guests: '2',
+                        status: 'completed' 
+                    }
+                ];
+            }
+            
+            function updateReservationsList(bookings) {
+                const today = new Date().toISOString().split('T')[0];
+                const todayBookings = bookings.filter(b => {
+                    const bookingDate = new Date(b.date).toISOString().split('T')[0];
+                    return bookingDate === today && (b.status === 'confirmed' || b.status === 'ongoing');
+                });
+                
+                const html = todayBookings.slice(0, 4).map(b => {
+                    const statusBadge = b.status === 'ongoing' ? 'ongoing' : 'upcoming';
+                    const statusText = b.status === 'ongoing' ? 'Ongoing' : 'Upcoming';
+                    
+                    return `
+                        <div class="reservation-item">
+                            <div class="reservation-info">
+                                <h6>${b.customerName}</h6>
+                                <p><i class="bi bi-grid-3x3-gap"></i> ${b.tableNumber} • <i class="bi bi-people"></i> ${b.guests || 4} Guests</p>
+                            </div>
+                            <div class="reservation-meta">
+                                <span class="status-badge ${statusBadge}">${statusText}</span>
+                                <p style="margin: 0; font-size: 0.875rem; color: var(--gray-medium);">${b.time}</p>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                $('#reservationsList').html(html || '<p class="text-muted text-center py-3">No reservations for today</p>');
+            }
+            
+            function updateAlerts(todayBookings) {
+                const now = new Date();
+                const alerts = [];
+                
+                todayBookings.forEach(b => {
+                    const bookingTime = new Date(`${b.date} ${b.time}`);
+                    const diffMinutes = Math.floor((bookingTime - now) / 60000);
+                    
+                    if (b.status === 'ongoing') {
+                        alerts.push({
+                            table: b.tableNumber,
+                            message: `Occupied since ${b.time}`,
+                            badge: 'overdue',
+                            badgeText: 'Ongoing'
+                        });
+                    } else if (diffMinutes > 0 && diffMinutes <= 120) {
+                        const timeText = diffMinutes < 60 ? `In ${diffMinutes} min` : `In ${Math.floor(diffMinutes/60)} hours`;
+                        alerts.push({
+                            table: b.tableNumber,
+                            message: `Reserved at ${b.time}`,
+                            badge: 'soon',
+                            badgeText: timeText
+                        });
+                    }
+                });
+                
+                const html = alerts.slice(0, 3).map(a => `
+                    <div class="alert-item">
+                        <div>
+                            <strong>${a.table}</strong>
+                            <p class="mb-0" style="font-size: 0.875rem; color: var(--gray-medium);">${a.message}</p>
+                        </div>
+                        <span class="alert-badge ${a.badge}">${a.badgeText}</span>
+                    </div>
+                `).join('');
+                
+                $('#alertsList').html(html || '<p class="text-muted text-center py-3">No alerts at this time</p>');
+            }
+
+            function filterBookings() {
+                const dateFilter = $('#filterDate').val();
+                const statusFilter = $('#filterStatus').val();
+                
+                $('#bookingsTableBody tr').each(function() {
+                    let show = true;
+                    
+                    if (dateFilter) {
+                        const bookingDate = $(this).find('td:eq(2)').text();
+                        const filterDateObj = new Date(dateFilter);
+                        const filterDateStr = filterDateObj.toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric', 
+                            year: 'numeric' 
+                        });
+                        
+                        if (!bookingDate.includes(filterDateStr)) {
+                            show = false;
+                        }
+                    }
+                    
+                    if (statusFilter !== 'all') {
+                        const status = $(this).find('.status-badge').text().toLowerCase();
+                        if (status !== statusFilter) {
+                            show = false;
+                        }
+                    }
+                    
+                    $(this).toggle(show);
+                });
+            }
+
+            function generateTablesGrid() {
+                const tablesContainer = $('#tablesGrid');
+                tablesContainer.empty();
+                
+                const tableStatuses = [
+                    { number: 1, seats: 2, status: 'available', timestamp: null },
+                    { number: 2, seats: 4, status: 'available', timestamp: null },
+                    { number: 3, seats: 2, status: 'available', timestamp: null },
+                    { number: 4, seats: 2, status: 'reserved', timestamp: 'Reserved at 2:00 PM' },
+                    { number: 5, seats: 4, status: 'occupied', timestamp: 'Occupied since 1:30 PM' },
+                    { number: 6, seats: 6, status: 'available', timestamp: null },
+                    { number: 7, seats: 4, status: 'reserved', timestamp: 'Reserved at 6:30 PM' },
+                    { number: 8, seats: 6, status: 'available', timestamp: null },
+                    { number: 9, seats: 2, status: 'available', timestamp: null },
+                    { number: 10, seats: 4, status: 'available', timestamp: null },
+                    { number: 11, seats: 2, status: 'available', timestamp: null },
+                    { number: 12, seats: 4, status: 'occupied', timestamp: 'Occupied since 12:30 PM' },
+                    { number: 13, seats: 6, status: 'available', timestamp: null },
+                    { number: 14, seats: 2, status: 'available', timestamp: null },
+                    { number: 15, seats: 4, status: 'reserved', timestamp: 'Reserved at 7:00 PM' },
+                    { number: 16, seats: 2, status: 'available', timestamp: null },
+                    { number: 17, seats: 4, status: 'available', timestamp: null },
+                    { number: 18, seats: 6, status: 'available', timestamp: null },
+                    { number: 19, seats: 2, status: 'available', timestamp: null },
+                    { number: 20, seats: 4, status: 'available', timestamp: null },
+                    { number: 21, seats: 2, status: 'available', timestamp: null },
+                    { number: 22, seats: 4, status: 'available', timestamp: null },
+                    { number: 23, seats: 6, status: 'available', timestamp: null },
+                    { number: 24, seats: 4, status: 'available', timestamp: null }
+                ];
+
+                tableStatuses.forEach(table => {
+                    const statusText = table.status.charAt(0).toUpperCase() + table.status.slice(1);
+                    const statusIcon = {
+                        available: 'bi-check-circle',
+                        occupied: 'bi-person-fill',
+                        reserved: 'bi-clock-fill'
+                    }[table.status];
+
+                    const card = `
+                        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                            <div class="table-card ${table.status}">
+                                <h4 class="table-number">
+                                    <i class="bi bi-grid-3x3-gap"></i>
+                                    Table ${table.number}
+                                </h4>
+                                <p class="table-seats">
+                                    <i class="bi bi-people"></i> ${table.seats}-Seater
+                                </p>
+                                <div class="table-status ${table.status}">
+                                    <i class="${statusIcon}"></i> ${statusText}
+                                </div>
+                                ${table.timestamp ? `<p class="table-timestamp">${table.timestamp}</p>` : ''}
+                            </div>
+                        </div>
+                    `;
+                    
+                    tablesContainer.append(card);
+                });
+            }
+
+            function updateBookingStatus(bookingId, newStatus) {
+                const bookings = getBookings();
+                const bookingIndex = bookings.findIndex(b => b.id === bookingId);
+                if (bookingIndex !== -1) {
+                    bookings[bookingIndex].status = newStatus;
+                    localStorage.setItem('bookings', JSON.stringify(bookings));
+                }
+            }
+
+            function loadBookingsTable() {
+                const bookings = getBookings();
+                const tableBody = $('#bookingsTableBody');
+                tableBody.empty();
+                
+                bookings.forEach(b => {
+                    const statusBadge = {
+                        confirmed: 'confirmed',
+                        ongoing: 'ongoing',
+                        upcoming: 'upcoming',
+                        completed: 'completed',
+                        cancelled: 'cancelled'
+                    }[b.status];
+                    
+                    const statusText = {
+                        confirmed: 'Confirmed',
+                        ongoing: 'Ongoing',
+                        upcoming: 'Upcoming',
+                        completed: 'Completed',
+                        cancelled: 'Cancelled'
+                    }[b.status];
+                    
+                    const row = `
+                        <tr>
+                            <td>
+                                <strong>${b.customerName}</strong>
+                                <br>
+                                <small style="color: var(--gray-medium);">${b.customerEmail}</small>
+                            </td>
+                            <td>${b.tableNumber}</td>
+                            <td>${b.date} • ${b.time}</td>
+                            <td><i class="bi bi-people"></i> ${b.guests || 4}</td>
+                            <td><span class="status-badge ${statusBadge}">${statusText}</span></td>
+                            <td>
+                                <button class="btn-primary-custom btn-sm-custom mark-complete-btn" ${b.status === 'ongoing' ? 'data-booking-id="' + b.id + '"' : 'disabled'}>
+                                    <i class="bi bi-check-lg"></i> Mark Complete
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    
+                    tableBody.append(row);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

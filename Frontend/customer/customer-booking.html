@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Book a Table - La Reserve</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+
+<body style="background: url('../assets/images/image background.jpg') no-repeat center center fixed; background-size: cover;">
+
+<div class="container py-5">
+  <!-- Header -->
+  <div class="text-center mb-5">
+    <h1 class="text-dark-green">Reserve Your Table</h1>
+    <p class="text-muted">Complete the form below to book your dining experience</p>
+  </div>
+
+  <form id="bookingForm" class="mx-auto" style="max-width: 900px;">
+    <!-- Booking Type Selection -->
+    <div class="card mb-4 shadow-sm" style="background-color: rgba(255,255,255,0.7); backdrop-filter: blur(10px); border-radius:12px;">
+      <div class="card-body">
+        <div class="d-flex align-items-center mb-4">
+          <i class="bi bi-calendar3 text-warning fs-5 me-2"></i>
+          <h3 class="mb-0 text-dark-green">Select Booking Type</h3>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-6 col-md-3">
+            <div class="booking-type-card" data-type="date" data-seats="2" data-min="2" data-max="2">
+              <div class="booking-icon">
+                <img src="../assets/images/Image1.jpg" alt="Dating Icon" width="150" height="120" style="border-radius:8px;">
+              </div>
+              <p class="fw-bold text-dark-green mb-0">Dating</p>
+              <small class="text-muted">2 seats</small>
+            </div>
+          </div>
+
+          <div class="col-6 col-md-3">
+            <div class="booking-type-card" data-type="family" data-seats="4" data-min="4" data-max="6">
+              <div class="booking-icon">
+                <img src="../assets/images/Image family.jpg" alt="Family Icon" width="150" height="120" style="border-radius:8px;">
+              </div>
+              <p class="fw-bold text-dark-green mb-0">Family</p>
+              <small class="text-muted">4-6 seats</small>
+            </div>
+          </div>
+
+          <div class="col-6 col-md-3">
+            <div class="booking-type-card" data-type="meeting" data-seats="8" data-min="8" data-max="12">
+              <div class="booking-icon">
+                <img src="../assets/images/Image meeting.jpg" alt="Meeting Icon" width="150" height="120" style="border-radius:8px;">
+              </div>
+              <p class="fw-bold text-dark-green mb-0">Meeting</p>
+              <small class="text-muted">8-12 seats</small>
+            </div>
+          </div>
+
+          <div class="col-6 col-md-3">
+            <div class="booking-type-card" data-type="party" data-seats="15" data-min="15" data-max="20">
+              <div class="booking-icon">
+                <img src="../assets/images/Image party.jpg" alt="Party Icon" width="150" height="120" style="border-radius:8px;">
+              </div>
+              <p class="fw-bold text-dark-green mb-0">Party</p>
+              <small class="text-muted">15-20 seats</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="invalid-feedback d-block" id="typeError" style="display:none"></div>
+
+        <!-- Seating Capacity -->
+        <div class="mt-4" id="seatingSection" style="display:none;">
+          <label class="form-label">Number of Guests (Editable)</label>
+          <input type="number" class="form-control w-auto" id="seatingCapacity" min="1" max="50" value="2">
+        </div>
+      </div>
+    </div>
+
+    <!-- Date Selection -->
+    <div class="card mb-4 shadow-sm" style="background-color: rgba(255,255,255,0.7); backdrop-filter: blur(10px); border-radius:12px;">
+      <div class="card-body">
+        <div class="d-flex align-items-center mb-4">
+          <i class="bi bi-calendar-event text-warning fs-5 me-2"></i>
+          <h3 class="mb-0 text-dark-green">Select Date</h3>
+        </div>
+        <input type="date" class="form-control" id="bookingDate" required>
+        <div class="invalid-feedback" id="dateError" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- Time Slot Selection -->
+    <div class="card mb-4 shadow-sm" style="background-color: rgba(255,255,255,0.7); backdrop-filter: blur(10px); border-radius:12px;">
+      <div class="card-body">
+        <div class="d-flex align-items-center mb-4">
+          <i class="bi bi-clock text-warning fs-5 me-2"></i>
+          <h3 class="mb-0 text-dark-green">Select Time Slot</h3>
+        </div>
+
+        <div class="mb-4">
+          <h6 class="text-muted mb-3">Morning</h6>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="time-slot btn btn-outline-secondary" data-time="10:00 AM - 11:00 AM">10:00 AM - 11:00 AM</button>
+            <button type="button" class="time-slot btn btn-outline-secondary" data-time="11:00 AM - 12:00 PM">11:00 AM - 12:00 PM</button>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <h6 class="text-muted mb-3">Afternoon</h6>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="time-slot btn btn-outline-secondary" data-time="12:00 PM - 1:00 PM">12:00 PM - 1:00 PM</button>
+            <button type="button" class="time-slot btn btn-outline-secondary" data-time="1:00 PM - 2:00 PM">1:00 PM - 2:00 PM</button>
+            <button type="button" class="time-slot btn btn-outline-secondary" data-time="2:00 PM - 3:00 PM">2:00 PM - 3:00 PM</button>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <h6 class="text-muted mb-3">Evening</h6>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="time-slot btn btn-outline-secondary" data-time="6:00 PM - 7:00 PM">6:00 PM - 7:00 PM</button>
+            <button type="button" class="time-slot btn btn-outline-secondary" data-time="7:00 PM - 8:00 PM">7:00 PM - 8:00 PM</button>
+            <button type="button" class="time-slot btn btn-outline-secondary" data-time="8:00 PM - 9:00 PM">8:00 PM - 9:00 PM</button>
+          </div>
+        </div>
+
+        <div class="invalid-feedback d-block" id="timeError" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- Customer Details -->
+    <div class="card mb-4 shadow-sm" style="background-color: rgba(255,255,255,0.7); backdrop-filter: blur(10px); border-radius:12px;">
+      <div class="card-body">
+        <div class="d-flex align-items-center mb-4">
+          <i class="bi bi-person text-warning fs-5 me-2"></i>
+          <h3 class="mb-0 text-dark-green">Your Details</h3>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-12">
+            <label for="customerName" class="form-label">Full Name *</label>
+            <input type="text" class="form-control" id="customerName" placeholder="Enter your full name" required>
+            <div class="invalid-feedback" id="nameError" style="display:none"></div>
+          </div>
+
+          <div class="col-md-6">
+            <label for="mobileNumber" class="form-label">
+              <i class="bi bi-phone"></i> Mobile Number *
+            </label>
+            <input type="tel" class="form-control" id="mobileNumber" placeholder="10-digit mobile number" maxlength="10" required>
+            <div class="invalid-feedback" id="mobileError" style="display:none"></div>
+          </div>
+
+          <div class="col-md-6">
+            <label for="whatsappNumber" class="form-label">
+              <i class="bi bi-whatsapp"></i> WhatsApp Number *
+            </label>
+            <input type="tel" class="form-control" id="whatsappNumber" placeholder="10-digit WhatsApp number" maxlength="10" required>
+            <div class="invalid-feedback" id="whatsappError" style="display:none"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit Button (inside the form) -->
+    <div class="mb-5">
+      <button type="submit" class="btn btn-gradient w-100 py-3 d-flex align-items-center justify-content-center">
+        <span>Proceed to Payment</span>
+        <i class="bi bi-chevron-right ms-2"></i>
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- scripts -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // only changed error handling display logic (clear/hide at start; text+show when error)
+  let selectedType = '';
+  let selectedTime = '';
+
+  $(document).ready(function () {
+    // if you want to enforce userType:
+    if (localStorage.getItem('userType') !== 'customer') {
+      window.location.href = '../index.html';
+      return;
+    }
+
+    // set min date
+    const today = new Date().toISOString().split('T')[0];
+    $('#bookingDate').attr('min', today);
+
+    // booking type
+    $('.booking-type-card').click(function () {
+      $('.booking-type-card').removeClass('active');
+      $(this).addClass('active');
+      selectedType = $(this).data('type');
+
+      const seats = Number($(this).data('seats'));
+      const min = Number($(this).data('min'));
+      const max = Number($(this).data('max'));
+      const $input = $('#seatingCapacity');
+
+      $('#seatingCapacity').val(seats);
+      $input.attr('min', min).attr('max', max);
+
+      // remove old handlers then add to prevent duplicates
+      $('#seatingCapacity').off('input blur').on('input blur', function () {
+        const $i = $(this);
+        const min = Number($i.attr('min'));
+        const max = Number($i.attr('max'));
+        let val = Number($i.val());
+        if (Number.isNaN(val)) { $i.val(min); return; }
+        if (val < min) $i.val(min);
+        if (val > max) $i.val(max);
+      });
+
+      $('#seatingSection').show();
+      $('#typeError').text('').hide();
+    });
+
+    // time slot
+    $('.time-slot').click(function () {
+      $('.time-slot').removeClass('active');
+      $(this).addClass('active');
+      selectedTime = $(this).data('time');
+      $('#timeError').text('').hide();
+    });
+
+    // mobile inputs numeric only
+    $('#mobileNumber, #whatsappNumber').on('input', function () {
+      this.value = this.value.replace(/\D/g, '');
+    });
+
+    // submit
+    $('#bookingForm').submit(function (e) {
+      e.preventDefault();
+
+      // --- ERROR HANDLING CHANGE: clear & hide all errors at start ---
+      $('.invalid-feedback').each(function () {
+        $(this).text('').hide();
+      });
+      $('.form-control').removeClass('is-invalid');
+
+      let isValid = true;
+
+      // validate type
+      if (!selectedType) {
+        $('#typeError').text('Please select a booking type').show();
+        isValid = false;
+      }
+
+      // validate date
+      const date = $('#bookingDate').val();
+      if (!date) {
+        $('#dateError').text('Please select a date').show();
+        $('#bookingDate').addClass('is-invalid');
+        isValid = false;
+      }
+
+      // validate time slot
+      if (!selectedTime) {
+        $('#timeError').text('Please select a time slot').show();
+        isValid = false;
+      }
+
+      // validate name
+      const name = $('#customerName').val().trim();
+      if (!name) {
+        $('#nameError').text('Name is required').show();
+        $('#customerName').addClass('is-invalid');
+        isValid = false;
+      }
+
+      // validate mobile
+      const mobile = $('#mobileNumber').val();
+      if (mobile.length !== 10) {
+        $('#mobileError').text('Mobile number must be 10 digits').show();
+        $('#mobileNumber').addClass('is-invalid');
+        isValid = false;
+      }
+
+      // validate whatsapp
+      const whatsapp = $('#whatsappNumber').val();
+      if (whatsapp.length !== 10) {
+        $('#whatsappError').text('WhatsApp number must be 10 digits').show();
+        $('#whatsappNumber').addClass('is-invalid');
+        isValid = false;
+      }
+
+      if (!isValid) return;
+
+      const bookingData = {
+        bookingType: selectedType,
+        seatingCapacity: $('#seatingCapacity').val(),
+        date: date,
+        timeSlot: selectedTime,
+        customerName: name,
+        mobileNumber: mobile,
+        whatsappNumber: whatsapp
+      };
+
+      // try saving to localStorage (no change here)
+      let savedUsing = null;
+      try {
+        localStorage.setItem('currentBooking', JSON.stringify(bookingData));
+        savedUsing = 'localStorage';
+      } catch (errLocal) {
+        console.warn('localStorage failed:', errLocal);
+        try {
+          sessionStorage.setItem('currentBooking', JSON.stringify(bookingData));
+          savedUsing = 'sessionStorage';
+        } catch (errSession) {
+          console.warn('sessionStorage failed:', errSession);
+          window._tempBooking = bookingData; // memory fallback
+          savedUsing = 'memory';
+        }
+      }
+
+      console.log('Booking saved using:', savedUsing, bookingData);
+
+      // redirect to payment page in same folder
+      const paymentPath = './customer-payment.html'; // adjust if name differs
+      setTimeout(() => window.location.href = paymentPath, 100);
+    });
+  });
+</script>
+
+</body>
+</html>

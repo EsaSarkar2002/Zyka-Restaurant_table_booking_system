@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!--
+   README / SETUP NOTES
+   --------------------
+   1. External resources:
+      - Bootstrap 5 CSS:  https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css
+      - Bootstrap 5 JS:   https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js
+      - Google Fonts:     Playfair Display & Poppins
+   2. Change hero background image:
+      - Edit .hero-section background-image URL below.
+   3. Connect "Book Now" button / nav to your booking page:
+      - Change href="/booking.html" to your actual booking file/route.
+   4. The whole page scrolls vertically:
+      - Top: Navbar + full-screen hero.
+      - Below: Alternating image–text feed (Date, Family, Celebrity, Professional, etc.).
+ -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Zyka | Restaurant Table Booking</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Poppins:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --zyka-bg-overlay: rgba(0, 0, 0, 0.55);
+            --zyka-accent: #ffb33b;
+            --zyka-accent-hover: #ff9a00;
+            --zyka-text-light: #fdfdfd;
+            --zyka-text-muted: #d6d6d6;
+            --zyka-card-bg: #15151f;
+            --zyka-font-display: "Playfair Display", "Times New Roman", serif;
+            --zyka-font-body: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--zyka-font-body);
+            background: radial-gradient(circle at top, #151526, #050709);
+            color: var(--zyka-text-light);
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background: rgba(5, 7, 9, 0.92);
+            backdrop-filter: blur(12px);
+            font-family: var(--zyka-font-body);
+        }
+
+        .navbar-brand {
+            font-family: var(--zyka-font-display);
+            font-size: 1.4rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .navbar-nav .nav-link {
+            font-size: 0.95rem;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+
+        .navbar-nav .nav-link.active,
+        .navbar-nav .nav-link:focus,
+        .navbar-nav .nav-link:hover {
+            color: var(--zyka-accent) !important;
+        }
+
+        /* HERO SECTION */
+        .hero-section {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--zyka-text-light);
+            background-image:
+                linear-gradient(to bottom, rgba(0, 0, 0, 0.7), var(--zyka-bg-overlay)),
+                url("./assets/images/food123.jpg");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .hero-section::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top, rgba(0, 0, 0, 0.65), transparent 55%);
+            pointer-events: none;
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 1;
+            padding: 4rem 1.5rem 3rem;
+            max-width: 720px;
+            opacity: 0;
+            transform: translateY(18px);
+            transition:
+                opacity 0.9s ease-out,
+                transform 0.9s ease-out;
+        }
+
+        .hero-inner.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .hero-brand {
+            font-family: var(--zyka-font-display);
+            font-weight: 700;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            font-size: clamp(2.4rem, 6vw, 4rem);
+            margin-bottom: 0.7rem;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.75);
+        }
+
+        .hero-tagline {
+            font-weight: 300;
+            font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--zyka-text-muted);
+            margin-bottom: 3rem;
+        }
+
+        .hero-sub {
+            font-size: clamp(1rem, 2vw, 1.15rem);
+            font-weight: 400;
+            margin-bottom: 1rem;
+        }
+
+        .btn-cta {
+            padding: 0.85rem 2.6rem;
+            border-radius: 999px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.95rem;
+            letter-spacing: 0.12em;
+            border: none;
+            background: var(--zyka-accent);
+            color: #1d1205;
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.65);
+        }
+
+        .btn-cta:hover,
+        .btn-cta:focus-visible {
+            background: var(--zyka-accent-hover);
+            color: #1d1205;
+            transform: translateY(-1px);
+            box-shadow: 0 18px 38px rgba(0, 0, 0, 0.8);
+        }
+
+        .btn-cta:focus-visible {
+            outline: 3px solid #ffffff;
+            outline-offset: 3px;
+        }
+
+        .scroll-hint {
+            margin-top: 2rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.25em;
+            color: var(--zyka-text-muted);
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .scroll-arrow {
+            display: inline-flex;
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            line-height: 1;
+            text-decoration: none;
+            color: var(--zyka-text-light);
+        }
+
+        .scroll-arrow:focus-visible {
+            outline: 3px solid #ffffff;
+            outline-offset: 4px;
+        }
+
+        @keyframes arrow-bounce {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(6px);
+            }
+
+            60% {
+                transform: translateY(3px);
+            }
+        }
+
+        .scroll-arrow-icon {
+            animation: arrow-bounce 1.6s infinite;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                scroll-behavior: auto !important;
+                animation-duration: 0.001ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.001ms !important;
+            }
+
+            .hero-inner {
+                opacity: 1 !important;
+                transform: none !important;
+            }
+
+            .scroll-arrow-icon {
+                animation: none !important;
+            }
+        }
+
+        /* =======================
+      FEED LAYOUT BELOW HERO
+      ======================= */
+        .feed-wrapper {
+            padding: 3rem 1rem 3.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .feed-wrapper {
+                padding: 3rem 2rem 4rem;
+            }
+        }
+
+        .feed-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .feed-header h2 {
+            font-family: var(--zyka-font-display);
+            font-size: clamp(1.7rem, 3vw, 2rem);
+            margin-bottom: 0.4rem;
+        }
+
+        .feed-header p {
+            color: var(--zyka-text-muted);
+            max-width: 560px;
+            margin: 0 auto;
+            font-size: 0.95rem;
+        }
+
+        .feed-item {
+            background: var(--zyka-card-bg);
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+            margin-bottom: 1.75rem;
+        }
+
+        .feed-image {
+            display: block;
+            width: 100%;
+            object-fit: cover;
+            min-height: 220px;
+            max-height: 320px;
+        }
+
+        .feed-body {
+            padding: 1.35rem 1.5rem;
+        }
+
+        .feed-label {
+            font-size: 0.8rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--zyka-accent);
+            margin-bottom: 0.3rem;
+        }
+
+        .feed-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.45rem;
+        }
+
+        .feed-text {
+            font-size: 0.94rem;
+            color: var(--zyka-text-muted);
+        }
+
+        .feed-text-row {
+            margin-bottom: 1.5rem;
+            padding: 0.4rem 0.2rem 0.6rem;
+            text-align: center;
+        }
+
+        .feed-text-row p {
+            color: var(--zyka-text-muted);
+            font-size: 0.95rem;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+
+        footer {
+            text-align: center;
+            padding: 0.9rem 0 1.2rem;
+            color: var(--zyka-text-muted);
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- NAVBAR -->
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark sticky-top" aria-label="Primary navigation">
+            <div class="container-fluid px-3 px-md-4">
+                <a class="navbar-brand" href="index.html" aria-label="Zyka home">Zyka</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#zykaNavbar"
+                    aria-controls="zykaNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse justify-content-end" id="zykaNavbar">
+                    <ul class="navbar-nav mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="index.html" aria-current="page">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <!-- Change to your real booking page -->
+                            <a class="nav-link" href="/booking.html">Your Booking</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#feed">Restaurants Location</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#feed">About Us</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <!-- HERO -->
+    <main>
+        <section class="hero-section" aria-labelledby="hero-title">
+            <div class="hero-inner" id="hero-content">
+                <h1 class="hero-brand" id="hero-title">zyka</h1>
+                <p class="hero-tagline">Food made with love</p>
+                <div class="mt-5">
+                    <p class="hero-sub">Craving something?</p>
+                    <a href="./customer/customer-booking.html" id="booknowBtn" class="btn btn-cta" aria-label="Book a table at Zyka">
+                        Book Now
+                    </a>
+                    <div class="scroll-hint mt-4">
+                        <span>Scroll for more</span>
+                        <a href="#feed" class="scroll-arrow" aria-label="Scroll to explore experiences">
+                            <span class="scroll-arrow-icon">&darr;</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- FEED SECTION (DATE, FAMILY, CELEBRITY, PROFESSIONAL, etc.) -->
+        <section id="feed" class="feed-wrapper container">
+            <div class="feed-header">
+                <h2>Moments at Zyka</h2>
+                <p>From first dates to big wins at work, explore how Zyka becomes part of every story.</p>
+            </div>
+            <!-- Date image left -->
+            <article class="feed-item">
+                <div class="row g-0 align-items-stretch">
+                    <div class="col-md-5">
+                        <img src="./assets/images/dateimage2.jpg" class="feed-image" alt="Romantic date setup at Zyka">
+                    </div>
+                    <div class="col-md-7">
+                        <div class="feed-body">
+                            <div class="feed-label">Date Night</div>
+                            <h3 class="feed-title h5">Cozy corners made for two</h3>
+                            <p class="feed-text">
+                                Reserve intimate seating with soft music, warm lighting, and a curated menu
+                                designed for long conversations and slow, memorable dinners.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </article>
+            <!-- Text row -->
+            <section class="feed-text-row">
+                <p>
+                    Whether it’s your first visit or your fiftieth, Zyka keeps your table ready,
+                    your stories flowing, and your plates full of comfort.
+                </p>
+            </section>
+            <!-- Family image right -->
+            <article class="feed-item">
+                <div class="row g-0 align-items-stretch">
+                    <div class="col-md-7 order-2 order-md-1">
+                        <div class="feed-body">
+                            <div class="feed-label">Family Time</div>
+                            <h3 class="feed-title h5">Room for every laugh</h3>
+                            <p class="feed-text">
+                                Big tables, sharable platters, and kid-friendly favorites make sure
+                                everyone from grandparents to toddlers feels right at home.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-5 order-1 order-md-2">
+                        <img src="./assets/images/shared image (4).jpg" class="feed-image"
+                            alt="Family enjoying dinner together at Zyka">
+                    </div>
+                </div>
+            </article>
+            <!-- Celebrity image left -->
+            <article class="feed-item">
+                <div class="row g-0 align-items-stretch">
+                    <div class="col-md-5">
+                        <img src="./assets/images/celebrationimage1.jpg" class="feed-image" alt="Celebrity guest at Zyka">
+                    </div>
+                    <div class="col-md-7">
+                        <div class="feed-body">
+                            <div class="feed-label">Celebrity Visits</div>
+                            <h3 class="feed-title h5">Where stars feel at home</h3>
+                            <p class="feed-text">
+                                Artists, creators, and public figures choose Zyka for its balance of
+                                privacy, warmth, and unforgettable flavors crafted with care.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </article>
+            <!-- Professional image right -->
+            <article class="feed-item">
+                <div class="row g-0 align-items-stretch">
+                    <div class="col-md-7">
+                        <div class="feed-body">
+                            <div class="feed-label">Professional Meets</div>
+                            <h3 class="feed-title h5">Host your next big idea</h3>
+                            <p class="feed-text">
+                                Private seating, reliable service, and custom menus make Zyka a natural
+                                choice for client lunches, team dinners, and networking evenings.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <img src="./assets/images/shared image (2).jpg" class="feed-image"
+                            alt="Professionals having a discussion over dinner">
+                    </div>
+                </div>
+            </article>
+            <!-- Event image left -->
+            <article class="feed-item">
+                <div class="row g-0 align-items-stretch">
+                    <div class="col-md-5">
+                        <img src="./assets/images/shared image (5).jpg" class="feed-image"
+                            alt="Celebration event at Zyka with lights and décor">
+                    </div>
+                    <div class="col-md-7">
+                        <div class="feed-body">
+                            <div class="feed-label">Events</div>
+                            <h3 class="feed-title h5">Celebrate every milestone</h3>
+                            <p class="feed-text">
+                                Birthdays, anniversaries, and special occasions become effortless with
+                                custom décor, playlists, and menus crafted around your story.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </article>
+            <!-- Food image right -->
+            <!-- Food image right (CAROUSEL VERSION) -->
+            <!-- Food image right (CAROUSEL WITH FADE) -->
+            <article class="feed-item">
+                <div class="row g-0 align-items-stretch">
+                    <!-- Text Left -->
+                    <div class="col-md-7">
+                        <div class="feed-body">
+                            <div class="feed-label">Signature Dishes</div>
+                            <h3 class="feed-title h5">Plates you’ll remember</h3>
+                            <p class="feed-text">
+                                From slow-cooked curries to sizzling grills, each dish is created with fresh
+                                ingredients,
+                                bold flavors, and a touch of creativity. Here are some of our best-sellers.
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Food Carousel Right -->
+                    <div class="col-md-5">
+                        <!-- 👇 added `carousel-fade` + autoplay + interval -->
+                        <div id="foodCarousel" class="carousel slide carousel-fade h-100" data-bs-ride="carousel"
+                            data-bs-interval="2600">
+                            <div class="carousel-inner h-100">
+                                <!-- Image 1 -->
+                                <div class="carousel-item active">
+                                    <img src="./assets/images/Image.jpg"
+                                        class="d-block w-100 feed-image" alt="Food item 1">
+                                </div>
+                                <!-- Image 2 -->
+                                <div class="carousel-item">
+                                    <img src="./assets/images/Image (1).jpg"
+                                        class="d-block w-100 feed-image" alt="Food item 2">
+                                </div>
+                                <!-- Image 3 -->
+                                <div class="carousel-item">
+                                    <img src="./assets/images/Image (2).jpg"
+                                        class="d-block w-100 feed-image" alt="Food item 3">
+                                </div>
+                                <!-- Image 4 -->
+                                <div class="carousel-item">
+                                    <img src="./assets/images/Image (3).jpg"
+                                        class="d-block w-100 feed-image" alt="Food item 4">
+                                </div>
+                                <!-- Image 5 -->
+                                <div class="carousel-item">
+                                    <img src="./assets/images/Image (4).jpg"
+                                        class="d-block w-100 feed-image" alt="Food item 5">
+                                </div>
+                                <!-- Image 6 -->
+                                <div class="carousel-item">
+                                    <img src="./assets/images/Image (5).jpg"
+                                        class="d-block w-100 feed-image" alt="Food item 6">
+                                </div>
+                                <!-- Image 7 -->
+                                <div class="carousel-item">
+                                    <img src="./assets/images/Image (6).jpg"
+                                        class="d-block w-100 feed-image" alt="Food item 7">
+                                </div>
+                                <!-- Image 8 -->
+                                <div class="carousel-item">
+                                    <img src="./assets/images/Image (7).jpg"
+                                        class="d-block w-100 feed-image" alt="Food item 8">
+                                </div>
+                                <!-- Image 9 -->
+                                <div class="carousel-item">
+                                    <img src="./assets/images/Image (3).jpg"
+                                        class="d-block w-100 feed-image" alt="Food item 9">
+                                </div>
+                                <!-- Image 10 -->
+                                <div class="carousel-item">
+                                    <img src="./assets/images/Image (8).jpg"
+                                        class="d-block w-100 feed-image" alt="Food item 10">
+                                </div>
+                            </div>
+                            <!-- Controls -->
+                            <button class="carousel-control-prev" type="button" data-bs-target="#foodCarousel"
+                                data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#foodCarousel"
+                                data-bs-slide="next">
+                                <span class="carousel-control-next-icon"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+            <!-- Review image right -->
+            <article class="feed-item">
+                <div class="row g-0 align-items-stretch">
+                    <div class="col-md-7">
+                        <div class="feed-body">
+                            <div class="feed-label">Reviews</div>
+                            <h3 class="feed-title h5">Loved by our guests</h3>
+                            <p class="feed-text">
+                                Showcase real feedback, ratings, and testimonials to highlight why
+                                Zyka is the go-to place for comfort, taste, and atmosphere.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <img src="./assets/images/guests.jpg" class="feed-image"
+                            alt="Customer giving a positive rating on a device">
+                    </div>
+                </div>
+            </article>
+            <!-- You can keep adding more .feed-item blocks in the same alternating pattern -->
+        </section>
+    </main>
+    <footer>
+        &copy; <span id="year"></span> Zyka. All rights reserved.
+    </footer>
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // $('#booknowBtn').on('click',function () {
+        //     window.location.href='customer/customer-booking.html';
+        // })
+        document.addEventListener("DOMContentLoaded", function () {
+            var hero = document.getElementById("hero-content");
+            if (hero) {
+                hero.classList.add("is-visible");
+            }
+            var yearSpan = document.getElementById("year");
+            if (yearSpan) {
+                yearSpan.textContent = new Date().getFullYear();
+            }
+        });
+
+        
+    </script>
+</body>
+
+</html>

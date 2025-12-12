@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - La Reserve</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="admin-sidebar">
+        <div class="sidebar-header">
+            <h2 class="brand-title">La Reserve</h2>
+            <p class="text-white-50 mb-0">Admin Panel</p>
+        </div>
+        
+        <nav class="nav flex-column py-3">
+            <a class="nav-link active" href="admin-dashboard.html">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+            <a class="nav-link" href="admin-tables.html">
+                <i class="bi bi-grid-3x3"></i> Tables
+            </a>
+            <a class="nav-link" href="admin-bookings.html">
+                <i class="bi bi-calendar-check"></i> Bookings
+            </a>
+            <a class="nav-link" href="admin-history.html">
+                <i class="bi bi-clock-history"></i> History
+            </a>
+            <a class="nav-link" href="admin-resort-message.html">
+                <i class="bi bi-chat-square-text"></i> Resort Closed Message
+            </a>
+        </nav>
+
+        <div class="p-3 mt-auto" style="position: absolute; bottom: 0; width: 100%; border-top: 1px solid rgba(255,255,255,0.1);">
+            <div class="d-flex align-items-center justify-content-between bg-white bg-opacity-10 rounded p-3">
+                <div>
+                    <p class="mb-0 text-white">Admin User</p>
+                    <small class="text-white-50">Administrator</small>
+                </div>
+                <button class="btn btn-link text-white p-0" id="logoutBtn">
+                    <i class="bi bi-box-arrow-right fs-5"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="admin-content">
+        <div class="mb-4">
+            <h1 class="text-dark-green">Dashboard Overview</h1>
+            <p class="text-muted">Welcome back! Here's your restaurant summary.</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card stat-card">
+                    <div class="stat-icon bg-warning bg-opacity-10">
+                        <i class="bi bi-grid-3x3 text-warning"></i>
+                    </div>
+                    <h6 class="text-muted mt-3">Total Tables</h6>
+                    <p class="stat-value text-warning" id="totalTables">20</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card stat-card">
+                    <div class="stat-icon" style="background-color: rgba(27, 67, 50, 0.1);">
+                        <i class="bi bi-calendar-check text-dark-green"></i>
+                    </div>
+                    <h6 class="text-muted mt-3">Today's Bookings</h6>
+                    <p class="stat-value text-dark-green" id="todayBookings">3</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card stat-card">
+                    <div class="stat-icon bg-primary bg-opacity-10">
+                        <i class="bi bi-clock text-primary"></i>
+                    </div>
+                    <h6 class="text-muted mt-3">Upcoming Bookings</h6>
+                    <p class="stat-value text-primary" id="upcomingBookings">2</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card stat-card">
+                    <div class="stat-icon bg-danger bg-opacity-10">
+                        <i class="bi bi-wrench text-danger"></i>
+                    </div>
+                    <h6 class="text-muted mt-3">Tables Under Maintenance</h6>
+                    <p class="stat-value text-danger" id="maintenanceTables">2</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card" style="background: linear-gradient(135deg, var(--beige) 0%, var(--cream) 100%); border: 1px solid rgba(212, 175, 55, 0.2);">
+            <div class="card-body">
+                <h3 class="text-dark-green mb-4">Quick Actions</h3>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <a href="admin-tables.html" class="btn btn-light w-100 py-3">View All Tables</a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="admin-bookings.html" class="btn btn-light w-100 py-3">Check Bookings</a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="admin-history.html" class="btn btn-light w-100 py-3">View History</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Check if user is logged in
+            if (localStorage.getItem('userType') !== 'admin') {
+                window.location.href = 'Frontend/index.html';
+            }
+
+            // Logout
+            $('#logoutBtn').click(function() {
+                localStorage.removeItem('userType');
+                window.location.href = '../index.html';
+            });
+
+            // Load stats
+            loadStats();
+        });
+
+        function loadStats() {
+            // Load from localStorage or use defaults
+            const tables = JSON.parse(localStorage.getItem('tables')) || getDefaultTables();
+            const bookings = JSON.parse(localStorage.getItem('bookings')) || getDefaultBookings();
+            
+            const today = new Date().toISOString().split('T')[0];
+            const todayBookings = bookings.filter(b => b.date === today);
+            const futureBookings = bookings.filter(b => b.date > today);
+            const maintenanceTables = tables.filter(t => t.status === 'maintenance');
+
+            $('#totalTables').text(tables.length);
+            $('#todayBookings').text(todayBookings.length);
+            $('#upcomingBookings').text(futureBookings.length);
+            $('#maintenanceTables').text(maintenanceTables.length);
+        }
+
+        function getDefaultTables() {
+            return [
+                { id: 'date-1', name: 'D1', status: 'available', category: 'date' },
+                { id: 'date-2', name: 'D2', status: 'booked', category: 'date' },
+                { id: 'date-3', name: 'D3', status: 'available', category: 'date' },
+                { id: 'date-4', name: 'D4', status: 'maintenance', category: 'date' },
+                { id: 'date-5', name: 'D5', status: 'available', category: 'date' },
+                { id: 'birthday-1', name: 'B1', status: 'available', category: 'birthday' },
+                { id: 'birthday-2', name: 'B2', status: 'booked', category: 'birthday' },
+                { id: 'birthday-3', name: 'B3', status: 'available', category: 'birthday' },
+                { id: 'birthday-4', name: 'B4', status: 'available', category: 'birthday' },
+                { id: 'birthday-5', name: 'B5', status: 'available', category: 'birthday' },
+                { id: 'party-1', name: 'P1', status: 'available', category: 'party' },
+                { id: 'party-2', name: 'P2', status: 'booked', category: 'party' },
+                { id: 'party-3', name: 'P3', status: 'available', category: 'party' },
+                { id: 'party-4', name: 'P4', status: 'available', category: 'party' },
+                { id: 'party-5', name: 'P5', status: 'maintenance', category: 'party' },
+                { id: 'celebration-1', name: 'C1', status: 'available', category: 'celebration' },
+                { id: 'celebration-2', name: 'C2', status: 'available', category: 'celebration' },
+                { id: 'celebration-3', name: 'C3', status: 'booked', category: 'celebration' },
+                { id: 'celebration-4', name: 'C4', status: 'available', category: 'celebration' },
+                { id: 'celebration-5', name: 'C5', status: 'available', category: 'celebration' }
+            ];
+        }
+
+        function getDefaultBookings() {
+            const today = new Date().toISOString().split('T')[0];
+            return [
+                { id: '1', customerName: 'John Smith', tableCategory: 'date', tableNumber: 'D2', date: today, time: '19:00', status: 'confirmed' },
+                { id: '2', customerName: 'Sarah Johnson', tableCategory: 'birthday', tableNumber: 'B2', date: today, time: '18:30', status: 'confirmed' },
+                { id: '3', customerName: 'Michael Chen', tableCategory: 'party', tableNumber: 'P2', date: today, time: '20:00', status: 'pending' },
+                { id: '4', customerName: 'Emma Wilson', tableCategory: 'celebration', tableNumber: 'C3', date: '2025-12-15', time: '19:30', status: 'confirmed' },
+                { id: '5', customerName: 'David Brown', tableCategory: 'date', tableNumber: 'D1', date: '2025-12-16', time: '18:00', status: 'confirmed' }
+            ];
+        }
+    </script>
+</body>
+</html>

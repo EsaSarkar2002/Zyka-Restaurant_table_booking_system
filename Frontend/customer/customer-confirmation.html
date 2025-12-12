@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmed - La Reserve</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body style="background: linear-gradient(135deg, var(--cream) 0%, white 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-lg text-center">
+                    <div class="card-body p-5">
+                        <div class="mb-4">
+                            <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                                <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                            </div>
+                        </div>
+                        
+                        <h1 class="text-dark-green mb-3">Booking Confirmed!</h1>
+                        <p class="text-muted mb-4">
+                            Your table has been successfully reserved. You will receive a confirmation message on your WhatsApp shortly.
+                        </p>
+
+                        <div class="bg-beige rounded p-4 mb-4">
+                            <h6 class="text-dark-green mb-3">Booking Details</h6>
+                            <div class="row g-2 text-start">
+                                <div class="col-6 text-muted">Booking ID:</div>
+                                <div class="col-6 fw-bold" id="bookingId">-</div>
+                                
+                                <div class="col-6 text-muted">Type:</div>
+                                <div class="col-6 fw-bold text-capitalize" id="bookingType">-</div>
+                                
+                                <div class="col-6 text-muted">Date:</div>
+                                <div class="col-6 fw-bold" id="bookingDate">-</div>
+                                
+                                <div class="col-6 text-muted">Time:</div>
+                                <div class="col-6 fw-bold" id="bookingTime">-</div>
+                                
+                                <div class="col-6 text-muted">Guests:</div>
+                                <div class="col-6 fw-bold" id="bookingGuests">-</div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Please arrive 15 minutes before your reservation time.
+                        </div>
+
+                        <button class="btn btn-gradient w-100 py-3" onclick="window.location.href='../homepage.html'">
+                            Return to Home
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const booking = JSON.parse(localStorage.getItem('lastBooking'));
+            
+            if (!booking) {
+                window.location.href = '../index.html';
+                return;
+            }
+
+            $('#bookingId').text(booking.bookingId || 'BK' + Date.now());
+            $('#bookingType').text(booking.bookingType);
+            $('#bookingDate').text(new Date(booking.date).toLocaleDateString());
+            $('#bookingTime').text(booking.timeSlot);
+            $('#bookingGuests').text(booking.seatingCapacity + ' people');
+        });
+    </script>
+</body>
+</html>

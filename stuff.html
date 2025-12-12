@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=1440, initial-scale=1" />
+  <title>Staff Dashboard — Restaurant Table Management</title>
+ 
+  <!-- Bootstrap 5 + Font Awesome + jQuery (CDN) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+ 
+  <style>
+    /* ---------- Page Layout ---------- */
+    :root{
+      --primary: #35C47E;         /* green accent */
+      --bg: #F7F8FA;
+      --card-bg: #ffffff;
+      --muted: #6F6F7A;
+      --shadow: 0 8px 24px rgba(19,24,32,0.06);
+      --radius: 12px;
+      --sidebar-w: 260px;
+    }
+    html,body { height:100%; background: var(--bg); font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color:#222; }
+    .app-shell { width:1440px; margin:24px auto; display:flex; gap:24px; }
+ 
+    /* ---------- Sidebar ---------- */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow);
+      padding:18px; display:flex; flex-direction:column; height:calc(100vh - 48px);
+    }
+    .brand { font-weight:700; font-size:1.125rem; color:#1f2933; display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+    .brand .logo { width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg,var(--primary), #1fb56b); display:flex; align-items:center; justify-content:center; color:white; font-weight:700; }
+    .nav-item { display:flex; align-items:center; gap:14px; padding:10px 10px; border-radius:10px; color:#344054; cursor:pointer; margin-bottom:6px; }
+    .nav-item:hover { background: rgba(53,196,126,0.06); color:var(--primary); }
+    .nav-item.active { background: linear-gradient(90deg, rgba(53,196,126,0.12), rgba(53,196,126,0.06)); color:var(--primary); font-weight:600; }
+    .nav-item i { width:22px; text-align:center; }
+ 
+    .sidebar .bottom { margin-top:auto; }
+ 
+    /* ---------- Main Card ---------- */
+    .main {
+      flex:1; display:flex; flex-direction:column; gap:18px;
+    }
+    .topbar {
+      height:72px; background:var(--card-bg); border-radius:12px; padding:12px 20px; display:flex; align-items:center; justify-content:space-between; box-shadow: var(--shadow);
+    }
+    .content {
+      background: transparent; min-height: calc(100vh - 160px);
+    }
+ 
+    /* ---------- KPI Cards ---------- */
+    .kpi-row { display:flex; gap:18px; }
+    .kpi {
+      flex:1; background:var(--card-bg); padding:18px; border-radius:12px; box-shadow: var(--shadow); min-height:100px;
+    }
+    .kpi .title { color:var(--muted); font-size:0.9rem; }
+    .kpi .value { font-size:1.8rem; font-weight:700; margin-top:6px; color:#111827; }
+ 
+    /* ---------- Reservation List ---------- */
+    .list-card { background:var(--card-bg); border-radius:12px; padding:14px; box-shadow: var(--shadow); }
+    .reservation-row { display:flex; align-items:center; gap:12px; padding:10px; border-radius:10px; }
+    .reservation-row + .reservation-row { margin-top:8px; }
+    .badge-status.upcoming { background: rgba(59,130,246,0.12); color:#2563eb; padding:.35rem .6rem; border-radius:999px; font-weight:600; }
+    .badge-status.ongoing { background: rgba(16,185,129,0.12); color:var(--primary); padding:.35rem .6rem; border-radius:999px; font-weight:600; }
+    .badge-status.late { background: rgba(249,115,22,0.12); color:#f97316; padding:.35rem .6rem; border-radius:999px; font-weight:600; }
+ 
+    /* ---------- Bookings Table ---------- */
+    .filters { display:flex; gap:12px; align-items:center; margin-bottom:12px; }
+    .filter-item { min-width:200px; }
+ 
+    .table-card { background:var(--card-bg); border-radius:12px; padding:14px; box-shadow: var(--shadow); }
+ 
+    /* ---------- Table Cards Grid ---------- */
+    .table-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:14px; }
+    .table-card-item { background:linear-gradient(180deg,#ffffff,#fbfbfc); border-radius:12px; padding:16px; box-shadow: var(--shadow); display:flex; flex-direction:column; gap:8px; }
+    .table-title { display:flex; justify-content:space-between; align-items:center; }
+    .status-badge.small { font-weight:700; padding:6px 8px; border-radius:8px; font-size:0.85rem; }
+    .status-empty { background: rgba(16,185,129,0.12); color:var(--primary); }
+    .status-reserved { background: rgba(250,204,21,0.12); color:#b45309; } /* yellow-ish */
+    .status-occupied { background: rgba(239,68,68,0.08); color:#dc2626; }
+ 
+    /* ---------- Utilities ---------- */
+    .muted { color:var(--muted); }
+    .small { font-size:0.85rem; }
+    .ml-auto { margin-left:auto; }
+    .rounded-12 { border-radius:12px; }
+    .btn-ghost { background: transparent; border:1px solid #e8e8ea; }
+    .search-input { max-width:360px; }
+ 
+    /* hide mobile scrollbar visuals (desktop only) */
+    @media (max-width:1200px) { body { zoom:0.85; } }
+  </style>
+</head>
+<body>
+ 
+<div class="app-shell">
+ 
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">D</div><div>Dine<span style="color:var(--primary)">Staff</span></div></div>
+ 
+    <div id="navList">
+      <div class="nav-item active" data-view="dashboard"><i class="fa-solid fa-chart-simple"></i><div>Dashboard</div></div>
+      <div class="nav-item" data-view="bookings"><i class="fa-regular fa-calendar-check"></i><div>Bookings</div></div>
+      <div class="nav-item" data-view="tables"><i class="fa-solid fa-table-cells-large"></i><div>Tables</div></div>
+    </div>
+ 
+    <div class="bottom">
+      <div style="height:12px"></div>
+      <div class="nav-item" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i><div>Logout</div></div>
+    </div>
+  </aside>
+ 
+  <!-- MAIN -->
+  <section class="main">
+ 
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="d-flex align-items-center gap-3">
+        <h5 id="pageTitle" style="margin:0">Dashboard</h5>
+        <div class="small muted" id="pageSub">Staff Portal — Table Management</div>
+      </div>
+ 
+      <div class="d-flex align-items-center gap-3">
+        <div class="small muted" id="dateTime"></div>
+        <div class="d-flex align-items-center gap-2" style="background:#f5f7f8; padding:6px 10px; border-radius:999px;">
+          <div style="width:36px; height:36px; border-radius:50%; background: linear-gradient(135deg,var(--primary), #2bbf68); color:white; display:flex; align-items:center; justify-content:center; font-weight:700;">S</div>
+          <div style="min-width:130px;">
+            <div style="font-weight:600;">S. Banerjee</div>
+            <div class="small muted">Staff</div>
+          </div>
+          <div style="width:6px"></div>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- CONTENT -->
+    <div class="content">
+ 
+      <!-- DASHBOARD VIEW -->
+      <div id="view-dashboard" class="view-pane">
+ 
+        <!-- KPI row -->
+        <div class="kpi-row">
+          <div class="kpi">
+            <div class="title">Total Tables</div>
+            <div class="value" id="kpi-total-tables">—</div>
+            <div class="small muted">Configured tables in the system</div>
+          </div>
+ 
+          <div class="kpi">
+            <div class="title">Tables Available</div>
+            <div class="value" id="kpi-available-tables">—</div>
+            <div class="small muted">Currently free to seat</div>
+          </div>
+ 
+          <div class="kpi">
+            <div class="title">Today's Bookings</div>
+            <div class="value" id="kpi-todays-bookings">—</div>
+            <div class="small muted">Reservations for today</div>
+          </div>
+ 
+          <div class="kpi">
+            <div class="title">Ongoing Reservations</div>
+            <div class="value" id="kpi-ongoing-reservations">—</div>
+            <div class="small muted">Currently being served</div>
+          </div>
+        </div>
+ 
+        <div class="mt-4 d-flex gap-4">
+          <!-- Left: Reservations list -->
+          <div style="flex:1" class="list-card">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <div><strong>Ongoing & Upcoming</strong><div class="small muted">Quick view of near-term reservations</div></div>
+              <div class="small muted">Show: <select id="dashFilter" class="form-select form-select-sm" style="width:auto; display:inline-block; margin-left:8px;"><option value="all">All</option><option value="upcoming">Upcoming</option><option value="ongoing">Ongoing</option></select></div>
+            </div>
+ 
+            <div id="reservationList">
+              <!-- rows injected by JS -->
+            </div>
+          </div>
+ 
+          <!-- Right: Alerts -->
+          <div style="width:360px">
+            <div class="list-card">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <div><strong>Alerts</strong><div class="small muted">Attention items</div></div>
+                <div class="small muted">Priority</div>
+              </div>
+ 
+              <div id="alertsList">
+                <!-- alerts injected -->
+              </div>
+ 
+            </div>
+          </div>
+        </div>
+ 
+      </div>
+ 
+      <!-- BOOKINGS VIEW -->
+      <div id="view-bookings" class="view-pane" style="display:none;">
+ 
+        <div class="table-card">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div>
+              <h5 style="margin:0">Bookings</h5>
+              <div class="small muted">Manage reservations for today and upcoming dates</div>
+            </div>
+ 
+            <div class="d-flex align-items-center gap-2">
+              <input type="date" id="filterDate" class="form-control form-control-sm filter-item small" />
+              <select id="filterStatus" class="form-select form-select-sm filter-item small">
+                <option value="">All statuses</option>
+                <option value="UPCOMING">Upcoming</option>
+                <option value="COMPLETED">Completed</option>
+                <option value="CANCELLED">Cancelled</option>
+              </select>
+              <button class="btn btn-outline-secondary btn-sm" id="clearFilters">Clear Filters</button>
+            </div>
+          </div>
+ 
+          <div style="overflow:auto;">
+            <table class="table align-middle">
+              <thead>
+                <tr class="small text-uppercase text-muted">
+                  <th>Customer</th>
+                  <th>Table</th>
+                  <th>Time</th>
+                  <th>Guests</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="bookingsTableBody">
+                <!-- rows -->
+              </tbody>
+            </table>
+          </div>
+ 
+          <div class="d-flex align-items-center justify-content-between mt-2">
+            <div class="small muted">Showing <span id="bookingsCount">0</span> bookings</div>
+            <div>
+              <!-- Pagination placeholder -->
+              <nav aria-label="Bookings pagination">
+                <ul class="pagination pagination-sm mb
+ 
+<!-- Pagination placeholder -->
+              <nav aria-label="Bookings pagination">
+                <ul class="pagination pagination-sm mb-0" id="bookingsPagination">
+                  <!-- pages injected -->
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+ 
+      </div>
+ 
+      <!-- TABLES VIEW -->
+      <div id="view-tables" class="view-pane" style="display:none;">
+        <div class="table-card">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div>
+              <h5 style="margin:0">Tables</h5>
+              <div class="small muted">Overview of table statuses</div>
+            </div>
+ 
+            <div>
+              <button class="btn btn-sm btn-outline-primary" id="refreshTables"><i class="fa-solid fa-arrows-rotate"></i> Refresh</button>
+            </div>
+          </div>
+ 
+          <div class="table-grid" id="tablesGrid">
+            <!-- table cards injected -->
+          </div>
+        </div>
+      </div>
+ 
+    </div>
+  </section>
+</div>
+ 
+<!-- Modals -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content rounded-12">
+      <div class="modal-body text-center p-4">
+        <div id="confirmModalBody">Confirm action?</div>
+        <div class="mt-3 d-flex gap-2 justify-content-center">
+          <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+          <button id="confirmModalOk" class="btn btn-success btn-sm">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+ 
+<script>
+/* ========= Sample Data =========
+   Replace these arrays with AJAX calls to your backend.
+*/
+const sampleTables = [
+  { tableId: 1, tableNumber:'T1', capacity:2, status:'EMPTY', lastReserved:'2025-11-28T18:30:00' },
+  { tableId: 2, tableNumber:'T2', capacity:4, status:'OCCUPIED', lastReserved:'2025-12-05T19:05:00' },
+  { tableId: 3, tableNumber:'T3', capacity:4, status:'RESERVED', lastReserved:'2025-12-09T20:00:00' },
+  { tableId: 4, tableNumber:'T4', capacity:6, status:'OCCUPIED', lastReserved:'2025-12-09T19:15:00' },
+  { tableId: 5, tableNumber:'T5', capacity:2, status:'EMPTY', lastReserved:'2025-12-01T13:00:00' },
+  { tableId: 6, tableNumber:'T6', capacity:8, status:'RESERVED', lastReserved:'2025-12-09T20:30:00' },
+  { tableId: 7, tableNumber:'T7', capacity:4, status:'EMPTY', lastReserved:'2025-12-06T14:10:00' },
+  { tableId: 8, tableNumber:'T8', capacity:2, status:'RESERVED', lastReserved:'2025-12-09T18:45:00' },
+  { tableId: 9, tableNumber:'T9', capacity:4, status:'OCCUPIED', lastReserved:'2025-12-09T19:25:00' }
+];
+ 
+const sampleBookings = [
+  { id:101, name:'Arjun Mitra', table:'T3', time:'2025-12-09T18:45:00', guests:4, status:'UPCOMING' },
+  { id:102, name:'Riya Sen', table:'T4', time:'2025-12-09T19:15:00', guests:6, status:'ONGOING' },
+  { id:103, name:'Samir Dutta', table:'T2', time:'2025-12-09T19:05:00', guests:4, status:'ONGOING' },
+  { id:104, name:'Nisha Roy', table:'T6', time:'2025-12-09T20:30:00', guests:8, status:'UPCOMING' },
+  { id:105, name:'Asha Kapoor', table:'T5', time:'2025-12-09T12:30:00', guests:2, status:'COMPLETED' },
+  { id:106, name:'Vikram Shah', table:'T8', time:'2025-12-09T18:45:00', guests:2, status:'UPCOMING' },
+  { id:107, name:'Meera Bose', table:'T9', time:'2025-12-09T19:25:00', guests:4, status:'ONGOING' },
+  { id:108, name:'Kunal Roy', table:'T1', time:'2025-12-09T13:00:00', guests:2, status:'CANCELLED' }
+];
+ 
+/* ========= Utilities ========= */
+function formatTimeISO(iso){
+  const d = new Date(iso);
+  if(isNaN(d)) return iso;
+  const t = d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  const date = d.toLocaleDateString();
+  return `${date} · ${t}`;
+}
+function timeOnly(iso){
+  const d = new Date(iso);
+  return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+}
+function isToday(iso){
+  const d = new Date(iso), today = new Date();
+  return d.toDateString() === today.toDateString();
+}
+ 
+/* ========= Rendering ========= */
+function renderKPIs(){
+  $('#kpi-total-tables').text(sampleTables.length);
+  const available = sampleTables.filter(t=>t.status==='EMPTY').length;
+  $('#kpi-available-tables').text(available);
+  const todaysBookings = sampleBookings.filter(b => isToday(b.time) && b.status !== 'CANCELLED').length;
+  $('#kpi-todays-bookings').text(todaysBookings);
+  const ongoing = sampleBookings.filter(b => b.status === 'ONGOING').length;
+  $('#kpi-ongoing-reservations').text(ongoing);
+}
+ 
+function renderReservationList(filter='all'){
+  const list = $('#reservationList').empty();
+  let rows = sampleBookings.filter(b => ['UPCOMING','ONGOING'].includes(b.status));
+  if(filter === 'upcoming') rows = rows.filter(r=>r.status==='UPCOMING');
+  if(filter === 'ongoing') rows = rows.filter(r=>r.status==='ONGOING');
+ 
+  if(rows.length === 0){
+    list.append('<div class="small muted">No upcoming or ongoing reservations.</div>');
+    return;
+  }
+ 
+  rows.sort((a,b)=> new Date(a.time) - new Date(b.time));
+  rows.forEach(r=>{
+    const statusClass = r.status === 'ONGOING' ? 'ongoing' : (r.status === 'UPCOMING' ? 'upcoming' : 'late');
+    const late = (r.status==='ONGOING' && (new Date() - new Date(r.time)) > 20*60000); // 20min late
+    const badgeClass = late ? 'late' : statusClass;
+    const row = $(`
+      <div class="reservation-row">
+        <div style="width:52px; height:52px; border-radius:10px; background:#f3fbf6; display:flex; align-items:center; justify-content:center; font-weight:700; color:var(--primary)">${r.table}</div>
+        <div style="flex:1">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div><strong>${r.name}</strong> <span class="small muted">• ${timeOnly(r.time)}</span></div>
+            <div><span class="badge-status ${badgeClass}">${r.status}</span></div>
+          </div>
+          <div class="small muted">Guests: ${r.guests}</div>
+        </div>
+      </div>
+    `);
+    list.append(row);
+  });
+}
+ 
+function renderAlerts(){
+  const a = $('#alertsList').empty();
+  // Example alert: table overdue
+  const lateReservations = sampleBookings.filter(r => r.status === 'ONGOING' && (new Date() - new Date(r.time)) > 20*60000);
+  if(lateReservations.length){
+    lateReservations.forEach(lr=>{
+      a.append(`<div class="p-2 mb-2 rounded-3" style="background:linear-gradient(90deg, rgba(249,115,22,0.08), rgba(255,255,255,0)); border-radius:10px;">
+        <div style="font-weight:700;color:#f97316">Table ${lr.table} overdue</div>
+        <div class="small muted">Reservation for ${lr.name} started at ${timeOnly(lr.time)} (late)</div>
+      </div>`);
+    });
+  } else {
+    a.append('<div class="small muted">No alerts. All clear.</div>');
+  }
+}
+ 
+function renderBookingsTable(page=1, perPage=6, filters={}){
+  let rows = sampleBookings.slice(); // clone
+  if(filters.date) rows = rows.filter(b => new Date(b.time).toDateString() === new Date(filters.date).toDateString());
+  if(filters.status) rows = rows.filter(b => b.status === filters.status);
+ 
+  const total = rows.length;
+  const start = (page-1)*perPage;
+  const paged = rows.slice(start, start+perPage);
+ 
+  const tbody = $('#bookingsTableBody').empty();
+  paged.forEach(b=>{
+    const statusBadge = b.status === 'UPCOMING' ? '<span class="badge bg-info text-dark">Upcoming</span>'
+                      : b.status === 'ONGOING' ? `<span class="badge" style="background:rgba(16,185,129,0.12); color:var(--primary)">Ongoing</span>`
+                      : b.status === 'COMPLETED' ? '<span class="badge bg-success">Completed</span>'
+                      : '<span class="badge bg-secondary">Cancelled</span>';
+ 
+    const row = $(`
+      <tr>
+        <td><strong>${b.name}</strong><div class="small muted">${formatTimeISO(b.time)}</div></td>
+        <td>${b.table}</td>
+        <td>${timeOnly(b.time)}</td>
+        <td>${b.guests}</td>
+        <td>${statusBadge}</td>
+        <td><button class="btn btn-sm btn-outline-success markComplete" data-id="${b.id}" ${b.status==='COMPLETED' || b.status==='CANCELLED' ? 'disabled' : ''}>Mark Complete</button></td>
+      </tr>
+    `);
+    tbody.append(row);
+  });
+ 
+ 
+  $('#bookingsCount').text(total);
+ 
+  // pagination
+  const pages = Math.max(1, Math.ceil(total/perPage));
+  const pg = $('#bookingsPagination').empty();
+  for(let i=1;i<=pages;i++){
+    pg.append(`<li class="page-item ${i===page?'active':''}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`);
+  }
+}
+ 
+function renderTablesGrid(){
+  const grid = $('#tablesGrid').empty();
+  sampleTables.forEach(t=>{
+    const statusClass = t.status === 'EMPTY' ? 'status-empty' : (t.status === 'RESERVED' ? 'status-reserved' : 'status-occupied');
+    const last = t.lastReserved ? new Date(t.lastReserved).toLocaleString() : '—';
+    const card = $(`
+      <div class="table-card-item">
+        <div class="table-title">
+          <div>
+            <div style="font-weight:700; font-size:1.05rem">${t.tableNumber}</div>
+            <div class="small muted">${t.capacity}-seater</div>
+          </div>
+          <div>
+            <div class="status-badge small ${statusClass}">${t.status}</div>
+          </div>
+        </div>
+        <div class="small muted">Last reserved: ${last}</div>
+        <div class="mt-auto d-flex gap-2">
+          <button class="btn btn-sm btn-outline-primary manage-btn" data-id="${t.tableId}"><i class="fa-solid fa-gear"></i> Manage</button>
+          <button class="btn btn-sm btn-ghost" data-id="${t.tableId}">View</button>
+        </div>
+      </div>
+    `);
+    grid.append(card);
+  });
+}
+ 
+/* ========= Interactions ========= */
+$(function(){
+ 
+  // initial render
+  renderKPIs();
+  renderReservationList();
+  renderAlerts();
+  renderBookingsTable(1,6,{});
+  renderTablesGrid();
+ 
+  // Live clock
+  function updateClock(){ $('#dateTime').text(new Date().toLocaleString()); }
+  updateClock(); setInterval(updateClock, 1000);
+ 
+  // nav click
+  $('#navList .nav-item').on('click', function(){
+    $('#navList .nav-item').removeClass('active');
+    $(this).addClass('active');
+    const view = $(this).data('view');
+    $('#pageTitle').text(view[0].toUpperCase() + view.slice(1));
+    $('.view-pane').hide();
+    $('#view-'+view).show();
+  });
+ 
+  // dashboard filter
+  $('#dashFilter').on('change', function(){ renderReservationList(this.value); });
+ 
+  // Bookings filters
+  $('#clearFilters').on('click', function(){
+    $('#filterDate').val('');
+    $('#filterStatus').val('');
+    renderBookingsTable(1,6,{});
+  });
+  $('#filterDate, #filterStatus').on('change', function(){
+    const f = { date: $('#filterDate').val(), status: $('#filterStatus').val() || null };
+    renderBookingsTable(1,6,f);
+  });
+ 
+  // pagination click
+  $('#bookingsPagination').on('click', 'a.page-link', function(e){
+    e.preventDefault();
+    const page = +$(this).data('page');
+    const f = { date: $('#filterDate').val(), status: $('#filterStatus').val() || null };
+    renderBookingsTable(page,6,f);
+  });
+ 
+  // mark complete handler
+  $(document).on('click', '.markComplete', function(){
+    const id = +$(this).data('id');
+    const booking = sampleBookings.find(b=>b.id===id);
+    if(!booking) return alert('Booking not found');
+    if(!confirm(`Mark booking for ${booking.name} as completed?`)) return;
+    // AJAX stub -> POST /api/reservations/{id}/complete
+    booking.status = 'COMPLETED';
+    renderKPIs();
+    renderReservationList($('#dashFilter').val());
+    const f = { date: $('#filterDate').val(), status: $('#filterStatus').val() || null };
+    renderBookingsTable(1,6,f);
+    renderAlerts();
+  });
+ 
+  // refresh tables
+  $('#refreshTables').on('click', function(){
+    // replace with GET /api/tables
+    renderTablesGrid();
+    renderKPIs();
+    showToast('Tables refreshed');
+  });
+ 
+  // logout
+  $('#logoutBtn').on('click', function(){ if(confirm('Logout?')) { /* implement logout */ showToast('Logged out (stub)'); } });
+ 
+  // simple toast (small)
+  window.showToast = function(msg, timeout=2200){
+    const id = 't'+Date.now();
+    const html = `<div id="${id}" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="${timeout}">
+      <div class="d-flex"><div class="toast-body">${msg}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div></div>`;
+    if(!$('#toastContainer').length) $('body').append('<div id="toastContainer" class="position-fixed top-0 end-0 p-3" style="z-index:1200;"></div>');
+    $('#toastContainer').append(html);
+    const t = new bootstrap.Toast(document.getElementById(id));
+    t.show();
+    setTimeout(()=> { $('#'+id).remove(); }, timeout+800);
+  };
+ 
+  // keyboard quick switches: 1-dashboard 2-bookings 3-tables
+  $(document).on('keydown', function(e){
+    if(e.key === '1') $('#navList .nav-item[data-view="dashboard"]').click();
+    if(e.key === '2') $('#navList .nav-item[data-view="bookings"]').click();
+    if(e.key === '3') $('#navList .nav-item[data-view="tables"]').click();
+  });
+ 
+});
+ 
+/* ========= Notes for integration =========
+ - Replace sampleTables and sampleBookings with AJAX calls:
+    GET /api/tables -> populate sampleTables array
+    GET /api/reservations?date=... -> populate sampleBookings
+    POST /api/reservations/{id}/complete to mark complete
+ - Use Authorization header for staff token when calling backend.
+ - Keep same client-side render functions; call them after AJAX responses to refresh UI.
+ - To add real-time updates, open a WebSocket/Server-Sent Events to push status changes.
+*/
+</script>
+ 
+</body>
+</html>
+ 

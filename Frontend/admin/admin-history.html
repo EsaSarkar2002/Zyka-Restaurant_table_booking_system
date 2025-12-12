@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking History - La Reserve</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="admin-sidebar">
+        <div class="sidebar-header">
+            <h2 class="brand-title">La Reserve</h2>
+            <p class="text-white-50 mb-0">Admin Panel</p>
+        </div>
+        
+        <nav class="nav flex-column py-3">
+            <a class="nav-link" href="admin-dashboard.html">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+            <a class="nav-link" href="admin-tables.html">
+                <i class="bi bi-grid-3x3"></i> Tables
+            </a>
+            <a class="nav-link" href="admin-bookings.html">
+                <i class="bi bi-calendar-check"></i> Bookings
+            </a>
+            <a class="nav-link active" href="admin-history.html">
+                <i class="bi bi-clock-history"></i> History
+            </a>
+            <a class="nav-link" href="admin-resort-message.html">
+                <i class="bi bi-chat-square-text"></i> Resort Closed Message
+            </a>
+        </nav>
+
+        <div class="p-3 mt-auto" style="position: absolute; bottom: 0; width: 100%; border-top: 1px solid rgba(255,255,255,0.1);">
+            <div class="d-flex align-items-center justify-content-between bg-white bg-opacity-10 rounded p-3">
+                <div>
+                    <p class="mb-0 text-white">Admin User</p>
+                    <small class="text-white-50">Administrator</small>
+                </div>
+                <button class="btn btn-link text-white p-0" id="logoutBtn">
+                    <i class="bi bi-box-arrow-right fs-5"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="admin-content">
+        <div class="mb-4">
+            <h1 class="text-dark-green">Booking History</h1>
+            <p class="text-muted">View past bookings by date</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Calendar -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <!-- Calendar Header -->
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <button class="btn btn-link text-dark-green" id="prevMonth">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+                            <h2 class="text-dark-green mb-0" id="monthYear">December 2024</h2>
+                            <button class="btn btn-link text-dark-green" id="nextMonth">
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+                        </div>
+
+                        <!-- Calendar Grid -->
+                        <div class="calendar-grid mb-2">
+                            <div class="text-center py-2 fw-bold text-muted">Sun</div>
+                            <div class="text-center py-2 fw-bold text-muted">Mon</div>
+                            <div class="text-center py-2 fw-bold text-muted">Tue</div>
+                            <div class="text-center py-2 fw-bold text-muted">Wed</div>
+                            <div class="text-center py-2 fw-bold text-muted">Thu</div>
+                            <div class="text-center py-2 fw-bold text-muted">Fri</div>
+                            <div class="text-center py-2 fw-bold text-muted">Sat</div>
+                        </div>
+                        <div class="calendar-grid" id="calendarDays"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bookings List -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm" style="max-height: 700px; overflow-y: auto;">
+                    <div class="card-body">
+                        <h3 class="text-dark-green mb-4" id="selectedDateTitle">Select a date</h3>
+                        <div id="bookingsList">
+                            <p class="text-muted text-center py-5">
+                                Click on a date in the calendar to view bookings
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentDate = new Date();
+        let bookings = [];
+
+        $(document).ready(function() {
+            if (localStorage.getItem('userType') !== 'admin') {
+                window.location.href = '../index.html';
+                return;
+            }
+
+            bookings = JSON.parse(localStorage.getItem('bookings')) || getDefaultBookings();
+
+            renderCalendar();
+
+            $('#logoutBtn').click(function() {
+                localStorage.removeItem('userType');
+                window.location.href = '../index.html';
+            });
+
+            $('#prevMonth').click(function() {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                renderCalendar();
+            });
+
+            $('#nextMonth').click(function() {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                renderCalendar();
+            });
+        });
+
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                              'July', 'August', 'September', 'October', 'November', 'December'];
+            
+            $('#monthYear').text(monthNames[month] + ' ' + year);
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startingDayOfWeek = firstDay.getDay();
+
+            let html = '';
+
+            // Empty cells
+            for (let i = 0; i < startingDayOfWeek; i++) {
+                html += '<div></div>';
+            }
+
+            // Days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dayBookings = bookings.filter(b => b.date === dateStr);
+                const isToday = new Date().toISOString().split('T')[0] === dateStr;
+                
+                let classes = 'calendar-day';
+                if (isToday) classes += ' today';
+                if (dayBookings.length > 0) classes += ' has-bookings';
+
+                html += `
+                    <div class="${classes}" data-date="${dateStr}">
+                        <div>${day}</div>
+                        ${dayBookings.length > 0 ? `<small class="text-muted">${dayBookings.length}</small>` : ''}
+                    </div>
+                `;
+            }
+
+            $('#calendarDays').html(html);
+
+            // Add click handlers
+            $('.calendar-day').click(function() {
+                $('.calendar-day').removeClass('active');
+                $(this).addClass('active');
+                const date = $(this).data('date');
+                showBookingsForDate(date);
+            });
+        }
+
+        function showBookingsForDate(dateStr) {
+            const date = new Date(dateStr);
+            const formattedDate = date.toLocaleDateString('en-US', { 
+                month: 'long', 
+                day: 'numeric', 
+                year: 'numeric' 
+            });
+            
+            $('#selectedDateTitle').text('Bookings for ' + formattedDate);
+
+            const dayBookings = bookings.filter(b => b.date === dateStr);
+
+            if (dayBookings.length === 0) {
+                $('#bookingsList').html('<p class="text-muted text-center py-5">No bookings on this date</p>');
+                return;
+            }
+
+            let html = '';
+            dayBookings.forEach(booking => {
+                const statusClass = booking.status === 'confirmed' ? 'success' : 
+                                  booking.status === 'pending' ? 'warning' : 'danger';
+                html += `
+                    <div class="border rounded p-3 mb-3 hover:border-warning transition">
+                        <p class="text-dark-green fw-bold mb-2">${booking.customerName}</p>
+                        <p class="text-muted mb-1 small">
+                            <i class="bi bi-grid-3x3 me-1"></i>
+                            ${booking.tableCategory} - ${booking.tableNumber}
+                        </p>
+                        <p class="text-muted mb-2 small">
+                            <i class="bi bi-clock me-1"></i>
+                            ${booking.time}
+                        </p>
+                        <span class="badge bg-${statusClass} text-capitalize">${booking.status}</span>
+                    </div>
+                `;
+            });
+
+            $('#bookingsList').html(html);
+        }
+
+        function getDefaultBookings() {
+            const today = new Date().toISOString().split('T')[0];
+            return [
+                { id: '1', customerName: 'John Smith', tableCategory: 'date', tableNumber: 'D2', date: today, time: '19:00', status: 'confirmed' },
+                { id: '2', customerName: 'Sarah Johnson', tableCategory: 'birthday', tableNumber: 'B2', date: today, time: '18:30', status: 'confirmed' },
+                { id: '3', customerName: 'Michael Chen', tableCategory: 'party', tableNumber: 'P2', date: today, time: '20:00', status: 'pending' }
+            ];
+        }
+    </script>
+</body>
+</html>
