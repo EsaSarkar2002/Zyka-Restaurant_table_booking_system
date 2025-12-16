@@ -1,135 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tables - La Reserve</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../assets/css/styles.css">
+  <meta charset="UTF-8" />
+  <title>Table Categories - Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/styles.css">
 </head>
+
 <body>
-    <!-- Sidebar -->
-    <div class="admin-sidebar">
-        <div class="sidebar-header">
-            <h2 class="brand-title">La Reserve</h2>
-            <p class="text-white-50 mb-0">Admin Panel</p>
-        </div>
-        
-        <nav class="nav flex-column py-3">
-            <a class="nav-link" href="admin-dashboard.html">
-                <i class="bi bi-speedometer2"></i> Dashboard
-            </a>
-            <a class="nav-link active" href="admin-tables.html">
-                <i class="bi bi-grid-3x3"></i> Tables
-            </a>
-            <a class="nav-link" href="admin-bookings.html">
-                <i class="bi bi-calendar-check"></i> Bookings
-            </a>
-            <a class="nav-link" href="admin-history.html">
-                <i class="bi bi-clock-history"></i> History
-            </a>
-            <a class="nav-link" href="admin-resort-message.html">
-                <i class="bi bi-chat-square-text"></i> Resort Closed Message
-            </a>
-        </nav>
+<!-- Sidebar -->
+<div class="admin-sidebar">
+  <div class="sidebar-header">
+    <h2 class="brand-title">ZYKA</h2>
+    <p class="text-white-50 mb-0">Admin Panel</p>
+  </div>
 
-        <div class="p-3 mt-auto" style="position: absolute; bottom: 0; width: 100%; border-top: 1px solid rgba(255,255,255,0.1);">
-            <div class="d-flex align-items-center justify-content-between bg-white bg-opacity-10 rounded p-3">
-                <div>
-                    <p class="mb-0 text-white">Admin User</p>
-                    <small class="text-white-50">Administrator</small>
-                </div>
-                <button class="btn btn-link text-white p-0" id="logoutBtn">
-                    <i class="bi bi-box-arrow-right fs-5"></i>
-                </button>
-            </div>
-        </div>
+  <nav class="nav flex-column py-3">
+    <a class="nav-link" href="admin-dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a>
+    <a class="nav-link active" href="admin-tables.html"><i class="bi bi-grid-3x3"></i> Tables</a>
+    <a class="nav-link" href="admin-bookings.html"><i class="bi bi-calendar-check"></i> Bookings</a>
+    <a class="nav-link" href="admin-history.html"><i class="bi bi-clock-history"></i> History</a>
+  </nav>
+
+  <div class="p-3 mt-auto position-absolute bottom-0 w-100">
+    <button class="btn btn-outline-light w-100" id="logoutBtn">
+      <i class="bi bi-box-arrow-right"></i> Logout
+    </button>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="admin-content">
+  <h1 class="text-dark-green mb-4">Table Categories</h1>
+
+  <div class="row g-4">
+    <div class="col-md-6">
+      <div class="card category-card" onclick="goToCategory('date')">
+        <h3>Date Tables</h3>
+        <p>Romantic tables for two</p>
+      </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="admin-content">
-        <div class="mb-4">
-            <h1 class="text-dark-green">Table Categories</h1>
-            <p class="text-muted">Select a category to manage tables</p>
-        </div>
-
-        <div class="row g-4">
-            <div class="col-md-6">
-                <div class="card category-card" onclick="viewCategory('date')">
-                    <div class="category-icon" style="background-color: rgba(236, 72, 153, 0.1);">
-                        <i class="bi bi-heart-fill" style="color: #ec4899;"></i>
-                    </div>
-                    <h2 class="text-dark-green">Date Table</h2>
-                    <p class="text-muted">Romantic dining for two</p>
-                    <div class="text-warning mt-3">
-                        <span>Manage Tables</span>
-                        <i class="bi bi-arrow-right ms-2"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="card category-card" onclick="viewCategory('birthday')">
-                    <div class="category-icon" style="background-color: rgba(168, 85, 247, 0.1);">
-                        <i class="bi bi-cake2-fill" style="color: #a855f7;"></i>
-                    </div>
-                    <h2 class="text-dark-green">Birthday Table</h2>
-                    <p class="text-muted">Celebrate special birthdays</p>
-                    <div class="text-warning mt-3">
-                        <span>Manage Tables</span>
-                        <i class="bi bi-arrow-right ms-2"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="card category-card" onclick="viewCategory('party')">
-                    <div class="category-icon" style="background-color: rgba(249, 115, 22, 0.1);">
-                        <i class="bi bi-balloon-fill" style="color: #f97316;"></i>
-                    </div>
-                    <h2 class="text-dark-green">Party Table</h2>
-                    <p class="text-muted">Large group celebrations</p>
-                    <div class="text-warning mt-3">
-                        <span>Manage Tables</span>
-                        <i class="bi bi-arrow-right ms-2"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="card category-card" onclick="viewCategory('celebration')">
-                    <div class="category-icon" style="background-color: rgba(212, 175, 55, 0.1);">
-                        <i class="bi bi-stars" style="color: #D4AF37;"></i>
-                    </div>
-                    <h2 class="text-dark-green">Celebration Table</h2>
-                    <p class="text-muted">Special occasions & events</p>
-                    <div class="text-warning mt-3">
-                        <span>Manage Tables</span>
-                        <i class="bi bi-arrow-right ms-2"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="col-md-6">
+      <div class="card category-card" onclick="goToCategory('family')">
+        <h3>Family Tables</h3>
+        <p>4–6 seating arrangements</p>
+      </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            if (localStorage.getItem('userType') !== 'admin') {
-                window.location.href = '../index.html';
-            }
+    <div class="col-md-6">
+      <div class="card category-card" onclick="goToCategory('meeting')">
+        <h3>Meeting Tables</h3>
+        <p>Business & meetings</p>
+      </div>
+    </div>
 
-            $('#logoutBtn').click(function() {
-                localStorage.removeItem('userType');
-                window.location.href = '../index.html';
-            });
-        });
+    <div class="col-md-6">
+      <div class="card category-card" onclick="goToCategory('celebration')">
+        <h3>Celebration Tables</h3>
+        <p>Events & parties</p>
+      </div>
+    </div>
+  </div>
+</div>
 
-        function viewCategory(category) {
-            window.location.href = `admin-table-category.html?category=${category}`;
-        }
-    </script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+  $(function () {
+    if (localStorage.getItem('userType') !== 'admin') {
+      window.location.href = '../index.html';
+    }
+
+    $('#logoutBtn').click(function () {
+      localStorage.removeItem('userType');
+      window.location.href = '../index.html';
+    });
+  });
+
+  function goToCategory(category) {
+    window.location.href = `admin-table-category.html?category=${category}`;
+  }
+</script>
 </body>
 </html>

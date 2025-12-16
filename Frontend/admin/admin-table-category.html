@@ -1,108 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Table Management - La Reserve</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../assets/css/styles.css">
+  <meta charset="UTF-8" />
+  <title>Manage Tables</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/styles.css">
 </head>
+
 <body>
-    <!-- Sidebar -->
-    <div class="admin-sidebar">
-        <div class="sidebar-header">
-            <h2 class="brand-title">La Reserve</h2>
-            <p class="text-white-50 mb-0">Admin Panel</p>
-        </div>
-        
-        <nav class="nav flex-column py-3">
-            <a class="nav-link" href="admin-dashboard.html">
-                <i class="bi bi-speedometer2"></i> Dashboard
-            </a>
-            <a class="nav-link active" href="admin-tables.html">
-                <i class="bi bi-grid-3x3"></i> Tables
-            </a>
-            <a class="nav-link" href="admin-bookings.html">
-                <i class="bi bi-calendar-check"></i> Bookings
-            </a>
-            <a class="nav-link" href="admin-history.html">
-                <i class="bi bi-clock-history"></i> History
-            </a>
-            <a class="nav-link" href="admin-resort-message.html">
-                <i class="bi bi-chat-square-text"></i> Resort Closed Message
-            </a>
-        </nav>
+<div class="admin-content p-4">
 
-        <div class="p-3 mt-auto" style="position: absolute; bottom: 0; width: 100%; border-top: 1px solid rgba(255,255,255,0.1);">
-            <div class="d-flex align-items-center justify-content-between bg-white bg-opacity-10 rounded p-3">
-                <div>
-                    <p class="mb-0 text-white">Admin User</p>
-                    <small class="text-white-50">Administrator</small>
-                </div>
-                <button class="btn btn-link text-white p-0" id="logoutBtn">
-                    <i class="bi bi-box-arrow-right fs-5"></i>
-                </button>
+  <button class="btn btn-outline-secondary mb-3" onclick="history.back()">
+    ← Back
+  </button>
+
+  <h1 class="text-dark-green mb-4" id="pageTitle">Tables</h1>
+
+  <div class="row g-3" id="tablesContainer"></div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+  $(function () {
+    if (localStorage.getItem('userType') !== 'admin') {
+      window.location.href = '../index.html';
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const category = params.get('category');
+
+    if (!category) {
+      alert('No category selected');
+      history.back();
+      return;
+    }
+
+    $('#pageTitle').text(`Tables for ${category.toUpperCase()}`);
+
+    const storageKey = `tables_${category}`;
+    let tables = JSON.parse(localStorage.getItem(storageKey));
+
+    if (!tables) {
+      tables = Array.from({ length: 8 }, (_, i) => ({
+        id: `${category[0].toUpperCase()}-${String(i + 1).padStart(2, '0')}`,
+        status: 'available'
+      }));
+      localStorage.setItem(storageKey, JSON.stringify(tables));
+    }
+
+    function render() {
+      const box = $('#tablesContainer');
+      box.empty();
+
+      tables.forEach((table, index) => {
+        const card = $(`
+          <div class="col-md-3">
+            <div class="card text-center p-3">
+              <i class="bi bi-table fs-1"></i>
+              <h5>${table.id}</h5>
+              <span class="badge bg-${getBadgeColor(table.status)} mb-2">
+                ${table.status.toUpperCase()}
+              </span>
+              <div class="d-grid gap-2">
+                <button class="btn btn-success btn-sm">Available</button>
+                <button class="btn btn-danger btn-sm">Booked</button>
+                <button class="btn btn-warning btn-sm">Maintenance</button>
+              </div>
             </div>
-        </div>
-    </div>
+          </div>
+        `);
 
-    <!-- Main Content -->
-    <div class="admin-content">
-        <div class="mb-4">
-            <button class="btn btn-link text-dark-green p-0 mb-3" onclick="window.location.href='admin-tables.html'">
-                <i class="bi bi-chevron-left"></i> Back to Categories
-            </button>
-            <h1 class="text-dark-green text-capitalize" id="categoryTitle">Tables</h1>
-            <p class="text-muted">Manage table availability and status</p>
-        </div>
+        card.find('.btn-success').click(() => update(index, 'available'));
+        card.find('.btn-danger').click(() => update(index, 'booked'));
+        card.find('.btn-warning').click(() => update(index, 'maintenance'));
 
-        <div class="row g-4" id="tablesGrid"></div>
-    </div>
+        box.append(card);
+      });
+    }
 
-    <!-- Side Panel -->
-    <div class="side-panel-overlay" id="panelOverlay"></div>
-    <div class="side-panel" id="tablePanel">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="text-dark-green">Table Details</h2>
-            <button class="btn btn-link p-0" id="closePanel">
-                <i class="bi bi-x-lg"></i>
-            </button>
-        </div>
+    function update(index, status) {
+      tables[index].status = status;
+      localStorage.setItem(storageKey, JSON.stringify(tables));
+      render();
+    }
 
-        <form id="tableForm">
-            <div class="mb-4">
-                <label class="form-label">Table Name</label>
-                <input type="text" class="form-control" id="tableName" readonly>
-            </div>
+    function getBadgeColor(status) {
+      if (status === 'available') return 'success';
+      if (status === 'booked') return 'danger';
+      return 'warning';
+    }
 
-            <div class="mb-4">
-                <label class="form-label">Status</label>
-                <div class="d-grid gap-2">
-                    <button type="button" class="btn btn-outline-success text-start status-option" data-status="available">
-                        <i class="bi bi-circle-fill status-available me-2"></i> Available
-                    </button>
-                    <button type="button" class="btn btn-outline-danger text-start status-option" data-status="booked">
-                        <i class="bi bi-circle-fill status-booked me-2"></i> Booked
-                    </button>
-                    <button type="button" class="btn btn-outline-warning text-start status-option" data-status="maintenance">
-                        <i class="bi bi-circle-fill status-maintenance me-2"></i> Under Maintenance
-                    </button>
-                </div>
-            </div>
-
-            <button type="button" class="btn btn-warning w-100 mb-3" id="setMaintenanceBtn">
-                Set Under Maintenance
-            </button>
-
-            <button type="submit" class="btn btn-gradient w-100">
-                Save Changes
-            </button>
-        </form>
-    </div>
-
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="table-category.js"></script>
+    render();
+  });
+</script>
 </body>
 </html>
