@@ -207,7 +207,7 @@
       $('#seatingCapacity').val(seats);
       $input.attr('min', min).attr('max', max);
 
-      // remove old handlers then add to prevent duplicates
+      
       $('#seatingCapacity').off('input blur').on('input blur', function () {
         const $i = $(this);
         const min = Number($i.attr('min'));
@@ -303,7 +303,7 @@
         whatsappNumber: whatsapp
       };
 
-      // try saving to localStorage (no change here)
+      // Saving to localStorage 
       let savedUsing = null;
       try {
         localStorage.setItem('currentBooking', JSON.stringify(bookingData));
