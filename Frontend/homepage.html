@@ -591,22 +591,22 @@
     </footer>
     <!-- Bootstrap Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery (used by the inline ready handler below) -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script>
         // $('#booknowBtn').on('click',function () {
         //     window.location.href='customer/customer-booking.html';
         // })
-        document.addEventListener("DOMContentLoaded", function () {
-            var hero = document.getElementById("hero-content");
-            if (hero) {
-                hero.classList.add("is-visible");
+        $(document).ready(function () {
+            var $hero = $('#hero-content');
+            if ($hero.length) {
+                $hero.addClass('is-visible');
             }
-            var yearSpan = document.getElementById("year");
-            if (yearSpan) {
-                yearSpan.textContent = new Date().getFullYear();
+            var $yearSpan = $('#year');
+            if ($yearSpan.length) {
+                $yearSpan.text(new Date().getFullYear());
             }
         });
-
-        
     </script>
 </body>
 
